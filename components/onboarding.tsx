@@ -8,7 +8,12 @@ import type { Employee, Language } from '@/types'
 import { Button, ExternalLink, LanguageToggle, ProgressBar, VideoEmbed } from './ui'
 
 const TEAM_URL = 'https://script.google.com/a/macros/99.co/s/AKfycbz_Jc4g49bqxmcxW_6TtCIgv2NFthp6lNEj_Yrk9IE5jd_rxO1taTEKRR3g5B99UtVc/exec?pli=1'
-const friendlyTitles: Record<number, string> = { 3: 'Get to know our story, mission and leaders.', 4: 'Get to know our Flywheel, Operations and Systems.', 5: 'Get to know our Values, Culture and Environment.', 6: 'Get to know our Resources, Support and Community.' }
+const friendlyTitles: Record<number, string> = {
+  3: 'Onboarding Video: Our Story, Mission and Leaders',
+  4: 'Onboarding Video: Our Flywheel, Operations and Systems',
+  5: 'Onboarding Video: Our Values, Culture and Environment',
+  6: 'Onboarding Video: Our Resources, Support and Community',
+}
 
 export default function Onboarding() {
   const [language, setLanguage] = useState<Language>('en'); const [employee, setEmployee] = useState<Employee | null>(null)
