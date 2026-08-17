@@ -7,7 +7,7 @@ export const steps: Step[] = [
   { number: 4, kind: 'video', title: 'How 99 Works', videoId: '1VA7M_PCA1mwpEk9wMAdAuBJHcrt1qgVw' },
   { number: 5, kind: 'video', title: 'Life at 99', videoId: '1VIdNBTTrFcBNc_6a1PNcVDzSHPnfVEpa' },
   { number: 6, kind: 'video', title: 'Your 99er Toolkit', videoId: '1zB8jyX9PEgVlkTloNRZMyLPMV2xBpQMX' },
-  { number: 7, kind: 'task', title: 'Update Your Slack Profile', externalUrl: 'https://app.slack.com/client' },
+  { number: 7, kind: 'task', title: 'Update Your Slack Profile', externalUrl: 'https://99dotco.slack.com/team/U06JQRW0YLW' },
   { number: 8, kind: 'form', title: 'Declaration Form', externalUrl: 'https://docs.google.com/forms/d/1fhIb6u-y80kltfePl3JYzimZjloOgYdtf7d1hzrpu70/viewform?edit_requested=true' },
   { number: 9, kind: 'linkedin', title: 'Update Your LinkedIn', optional: true, externalUrl: 'https://www.linkedin.com/in/me/edit/intro/' },
   { number: 10, kind: 'task', title: 'Email Signature', optional: true, externalUrl: 'https://docs.google.com/document/d/1xm4BQg5dqKvDqZieW0PixA6831SnLui7lQLTAXMAWoQ/edit?tab=t.0' },
