@@ -11,7 +11,7 @@ export const steps: Step[] = [
   { number: 8, kind: 'form', title: 'Declaration Form', externalUrl: 'https://docs.google.com/forms/d/1fhIb6u-y80kltfePl3JYzimZjloOgYdtf7d1hzrpu70/viewform?edit_requested=true' },
   { number: 9, kind: 'linkedin', title: 'Update Your LinkedIn', optional: true, externalUrl: 'https://www.linkedin.com/in/me/edit/intro/' },
   { number: 10, kind: 'task', title: 'Email Signature', optional: true, externalUrl: 'https://docs.google.com/document/d/1xm4BQg5dqKvDqZieW0PixA6831SnLui7lQLTAXMAWoQ/edit?tab=t.0' },
-  { number: 11, kind: 'task', title: 'Google Calendar', externalUrl: 'https://calendar.google.com/' },
+  { number: 11, kind: 'task', title: 'Check your onboarding schedule.', externalUrl: 'https://calendar.google.com/' },
   { number: 12, kind: 'task', title: '99ers Home', externalUrl: 'https://sites.google.com/99.co/99ers-home/about-the-team' },
   { number: 13, kind: 'reflection', title: 'Note to Self' },
   { number: 14, kind: 'manager', title: 'Ask Your Manager' },
