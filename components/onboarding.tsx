@@ -28,9 +28,54 @@ export default function Onboarding() {
 }
 
 function StepContent({ step, employee, t, language, onAdvance, busy, error, setError }: { step: typeof steps[number]; employee: Employee; t: typeof translations.en; language: Language; onAdvance: () => Promise<void>; busy: boolean; error: string; setError: (s: string) => void }) {
-  const [question, setQuestion] = useState(''); const [saved, setSaved] = useState(false); const [answers, setAnswers] = useState<Record<string,string>>({}); const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]); const [copied, setCopied] = useState(false)
+  const [question, setQuestion] = useState('');
+const [saved, setSaved] = useState(false);
+const [answers, setAnswers] = useState<Record<string,string>>({});
+const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]);
+const [copied, setCopied] = useState(false);
+
+useEffect(() => {
+  if (step.kind !== 'video' || !supabase) return;
+
+  supabase
+    .from('onboarding_questions')
+    .select('question')
+    .eq('employee_id', employee.id)
+    .eq('step_number', step.number)
+    .maybeSingle()
+    .then(({ data }) => {
+      if (data?.question) {
+        setQuestion(data.question);
+        setSaved(true);
+      }
+    });
+}, [step.kind, step.number, employee.id]);
   useEffect(() => { if (step.kind === 'manager' && supabase) supabase.from('onboarding_questions').select('step_number,question').eq('employee_id', employee.id).in('step_number', [3,4,5,6]).then(({data}) => setQuestions(data || [])) }, [step.kind, employee.id])
-  async function saveQuestion() { if (!question.trim() || !supabase) return; setError(''); const { error } = await supabase.from('onboarding_questions').insert({ employee_id: employee.id, step_number: step.number, question: question.trim() }); if (error) { setError(t.saveError); return } setQuestion(''); setSaved(true) }
+  async function saveQuestion() {
+  if (!question.trim() || !supabase) return;
+
+  setError('');
+
+  const { error } = await supabase
+    .from('onboarding_questions')
+    .upsert(
+      {
+        employee_id: employee.id,
+        step_number: step.number,
+        question: question.trim(),
+      },
+      {
+        onConflict: 'employee_id,step_number',
+      }
+    );
+
+  if (error) {
+    setError(t.saveError);
+    return;
+  }
+
+  setSaved(true);
+}
   async function saveReflections() { if (!supabase) return; const records = Object.entries(answers).filter(([, answer]) => answer.trim()).map(([question, answer]) => ({ employee_id: employee.id, question, answer })); if (!records.length) return; const { error } = await supabase.from('onboarding_reflections').insert(records); if (error) setError(t.saveError) }
   const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
