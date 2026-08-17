@@ -21,6 +21,6 @@ export const steps: Step[] = [
 export const reflectionQuestions = [
   'What are you hoping to learn during your first month?',
   'What do you want to remember about how you feel on your first day?',
-  'What would make you feel that your first month at 99 has been a good one?',
-  'Is there anything you’re nervous, curious or excited about?'
+  'What would make you feel proud of your first month at 99?',
+  'What are you most nervous, curious, or excited about as you start your journey at 99?'
 ]

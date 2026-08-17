@@ -81,7 +81,31 @@ useEffect(() => {
 
   setSaved(true);
 }
-  async function saveReflections() { if (!supabase) return; const records = Object.entries(answers).filter(([, answer]) => answer.trim()).map(([question, answer]) => ({ employee_id: employee.id, question, answer })); if (!records.length) return; const { error } = await supabase.from('onboarding_reflections').insert(records); if (error) setError(t.saveError) }
+  async function saveReflections() {
+    if (!supabase) return;
+    const records = Object.entries(answers)
+      .filter(([, answer]) => answer.trim())
+      .map(([question, answer]) => ({
+        employee_id: employee.id,
+        question,
+        answer
+      }));
+
+    if (!records.length) return;
+
+    setError('');
+    const { error } = await supabase
+      .from('onboarding_reflections')
+      .insert(records);
+
+    if (error) {
+      console.error(error);
+      setError(t.saveError);
+      return;
+    }
+
+    setSaved(true);
+  }
   const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
   if (step.number === 2) return <><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re joining the {employee.department || '99 Group'} team.</h1><p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">Here&apos;s a quick look at the 99ers you&apos;ll be working with.</p><ExternalLink href={TEAM_URL} className="mt-8">See who&apos;s in your team</ExternalLink></>
