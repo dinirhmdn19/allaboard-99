@@ -11,4 +11,18 @@ export function LanguageToggle({ language, onChange }: { language: Language; onC
   return <div className="flex rounded-full border border-ink/15 bg-cream p-1 text-sm shadow-sm" aria-label="Language selector"><button aria-pressed={language === 'en'} onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${language === 'en' ? 'bg-ink text-white' : 'text-ink/70'}`}>EN</button><button aria-pressed={language === 'id'} onClick={() => onChange('id')} className={`rounded-full px-3 py-1.5 transition ${language === 'id' ? 'bg-ink text-white' : 'text-ink/70'}`}>ID</button></div>
 }
 export function ProgressBar({ current }: { current: number }) { return <div className="h-2 overflow-hidden rounded-full bg-ink/10" role="progressbar" aria-valuemin={1} aria-valuemax={16} aria-valuenow={current}><div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${(current / 16) * 100}%` }} /></div> }
-export function VideoEmbed({ id, title }: { id: string; title: string }) { const url = `https://drive.google.com/file/d/${id}/preview`; const fallback = `https://drive.google.com/file/d/${id}/view`; return <div className="overflow-hidden rounded-3xl border border-ink/10 bg-ink/5"><iframe className="aspect-video w-full" src={url} title={title} allow="autoplay" loading="lazy" /><div className="flex items-center justify-between gap-3 px-4 py-3 text-sm"><span>Having trouble viewing this video?</span><ExternalLink href={fallback} className="shrink-0 !px-4 !py-2">Watch video</ExternalLink></div></div> }
+export function VideoEmbed({ src, title, onEnded }: { src: string; title: string; onEnded?: () => void }) {
+  return (
+    <div className="overflow-hidden rounded-3xl border border-ink/10 bg-ink/5">
+      <video
+        className="aspect-video w-full bg-black"
+        src={src}
+        title={title}
+        controls
+        playsInline
+        preload="metadata"
+        onEnded={onEnded}
+      />
+    </div>
+  )
+}
