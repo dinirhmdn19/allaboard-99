@@ -143,9 +143,7 @@ useEffect(() => {
   if (step.kind === 'video') {
     const configuredVideo = videos.find(v => v.step_number === step.number)
     const videoSrc = configuredVideo?.storage_path
-      ? supabase?.storage.from('videos').getPublicUrl(
-          configuredVideo.storage_path.replace(/^videos\//, '')
-        ).data.publicUrl
+      ? supabase?.storage.from('videos').getPublicUrl(configuredVideo.storage_path).data.publicUrl
       : null
 
     return <>
