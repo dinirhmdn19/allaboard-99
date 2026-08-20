@@ -14,6 +14,12 @@ const friendlyTitles: Record<number, string> = {
   5: 'Onboarding Video: Our Values, Culture and Environment',
   6: 'Onboarding Video: Our Resources, Support and Community',
 }
+const VIDEO_URLS: Record<number, string> = {
+  3: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-3.mp4',
+  4: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-4.mp4',
+  5: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-5.mp4',
+  6: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-6.mp4',
+}
 
 export default function Onboarding() {
   const [language, setLanguage] = useState<Language>('en'); const [employee, setEmployee] = useState<Employee | null>(null)
@@ -142,9 +148,7 @@ useEffect(() => {
   if (step.number === 2) return <><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re joining the {employee.department || '99 Group'} team.</h1><p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">Here&apos;s a quick look at the 99ers you&apos;ll be working with.</p><ExternalLink href={TEAM_URL} className="mt-8">See who&apos;s in your team</ExternalLink></>
   if (step.kind === 'video') {
     const configuredVideo = videos.find(v => v.step_number === step.number)
-    const videoSrc = configuredVideo?.storage_path
-      ? supabase?.storage.from('videos').getPublicUrl(configuredVideo.storage_path).data.publicUrl
-      : null
+    const videoSrc = VIDEO_URLS[step.number] || null
 
     return <>
       <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
