@@ -14,6 +14,7 @@ const friendlyTitles: Record<number, string> = {
   5: 'Onboarding Video: Our Values, Culture and Environment',
   6: 'Onboarding Video: Our Resources, Support and Community',
 }
+const REQUIRED_VIDEO_STEPS = new Set([3, 4, 5, 6])
 const VIDEO_URLS: Record<number, string> = {
   3: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-3.mp4',
   4: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-4.mp4',
@@ -23,7 +24,7 @@ const VIDEO_URLS: Record<number, string> = {
 
 export default function Onboarding() {
   const [language, setLanguage] = useState<Language>('en'); const [employee, setEmployee] = useState<Employee | null>(null)
-  const [current, setCurrent] = useState(1); const [, setCompleted] = useState<number[]>([]); const [ready, setReady] = useState(false)
+  const [current, setCurrent] = useState(1); const [completed, setCompleted] = useState<number[]>([]); const [ready, setReady] = useState(false)
   const [videos, setVideos] = useState<OnboardingVideo[]>([])
   const [email, setEmail] = useState(''); const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const t = translations[language]; const step = steps[current - 1]
@@ -50,10 +51,12 @@ export default function Onboarding() {
   function back() { setError(''); setCurrent(Math.max(1, current - 1)) }
   if (!ready) return <main className="grid min-h-screen place-items-center p-6 text-ink"><p className="animate-pulse">{t.loading}</p></main>
   if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10"><header className="mb-14 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><p className="mb-3 text-sm font-bold uppercase tracking-[.16em] text-leaf">99 Group</p><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t.emailTitle}</h1><p className="mt-4 max-w-md text-lg leading-relaxed text-ink/70">One person. One journey. One step at a time.</p><form className="mt-10" onSubmit={lookup}><label className="mb-2 block font-semibold" htmlFor="email">{t.emailQuestion}</label><input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t.emailPlaceholder} autoComplete="email" className="w-full rounded-2xl border border-ink/20 px-4 py-3.5 transition focus:border-leaf" /><p className="mt-2 min-h-5 text-sm text-red-700" role="alert">{error}</p><Button type="submit" disabled={busy} className="mt-5 w-full">{busy ? t.loading : t.continue}</Button></form></section></main>
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} 16</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== 16 && <Button onClick={advance} disabled={busy}>{current === 15 ? t.done : step.optional ? t.skip : t.next}</Button>}</nav></div><button onClick={() => { clearSession(); setEmployee(null); setCurrent(1); setCompleted([]) }} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
+  const isRequiredVideoStep = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
+  const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} 16</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== 16 && <Button onClick={advance} disabled={busy || isRequiredVideoStep && !isVideoCompleted}>{current === 15 ? t.done : step.optional ? t.skip : t.next}</Button>}</nav></div><button onClick={() => { clearSession(); setEmployee(null); setCurrent(1); setCompleted([]) }} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
 }
 
-function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError }: {
+function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd }: {
   step: typeof steps[number]
   employee: Employee
   t: typeof translations.en
@@ -63,20 +66,40 @@ function StepContent({ step, employee, t, language, videos, onAdvance, busy, err
   busy: boolean
   error: string
   setError: (s: string) => void
+  isVideoCompleted: boolean
+  onVideoEnd: () => void
 }) {
   const [question, setQuestion] = useState('');
-const [saved, setSaved] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
+	const [saved, setSaved] = useState(false);
+  const [videoLocked, setVideoLocked] = useState(false)
+  const [videoWatchedUntil, setVideoWatchedUntil] = useState(0)
   const [reflectionSaved, setReflectionSaved] = useState(false);
 const [answers, setAnswers] = useState<Record<string,string>>({});
 const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]);
 const [copied, setCopied] = useState(false);
 
-useEffect(() => {
-  setVideoEnded(false);
-}, [step.number]);
+  const isRequiredVideo = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
 
-useEffect(() => {
+	useEffect(() => {
+	  setVideoLocked(isRequiredVideo && !isVideoCompleted)
+	  setVideoWatchedUntil(0)
+	}, [isVideoCompleted, isRequiredVideo, step.number]);
+  const onVideoTimeUpdate = (event: { currentTarget: HTMLVideoElement }) => {
+    const currentTime = event.currentTarget.currentTime
+    if (!videoLocked || !isRequiredVideo) return
+    if (currentTime > videoWatchedUntil) setVideoWatchedUntil(currentTime)
+  }
+  const onVideoSeeking = (event: { currentTarget: HTMLVideoElement }) => {
+    if (!videoLocked || !isRequiredVideo) return
+    const video = event.currentTarget
+    if (video.currentTime > videoWatchedUntil) video.currentTime = videoWatchedUntil
+  }
+  const handleVideoEnd = () => {
+    setVideoLocked(false)
+    onVideoEnd()
+  }
+
+	useEffect(() => {
   if (step.kind !== 'video' || !supabase) return;
 
   supabase
@@ -146,16 +169,22 @@ useEffect(() => {
   const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
   if (step.number === 2) return <><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re joining the {employee.department || '99 Group'} team.</h1><p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">Here&apos;s a quick look at the 99ers you&apos;ll be working with.</p><ExternalLink href={TEAM_URL} className="mt-8">See who&apos;s in your team</ExternalLink></>
-  if (step.kind === 'video') {
-    const configuredVideo = videos.find(v => v.step_number === step.number)
-    const videoSrc = VIDEO_URLS[step.number] || null
+	  if (step.kind === 'video') {
+	    const configuredVideo = videos.find(v => v.step_number === step.number)
+	    const videoSrc = VIDEO_URLS[step.number] || null
 
-    return <>
+	    return <>
       <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{configuredVideo?.title || friendlyTitles[step.number]}</h1>
       <div className="mt-8">
         {videoSrc ? (
-          <VideoEmbed src={videoSrc} title={configuredVideo?.title || step.title} />
+          <VideoEmbed
+            src={videoSrc}
+            title={configuredVideo?.title || step.title}
+            onSeeking={isRequiredVideo ? onVideoSeeking : undefined}
+            onTimeUpdate={isRequiredVideo ? onVideoTimeUpdate : undefined}
+            onEnded={isRequiredVideo ? handleVideoEnd : undefined}
+          />
         ) : (
           <p className="rounded-2xl bg-ink/5 p-5 text-ink/60">Video unavailable.</p>
         )}

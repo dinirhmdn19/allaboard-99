@@ -11,7 +11,19 @@ export function LanguageToggle({ language, onChange }: { language: Language; onC
   return <div className="flex rounded-full border border-ink/15 bg-cream p-1 text-sm shadow-sm" aria-label="Language selector"><button aria-pressed={language === 'en'} onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${language === 'en' ? 'bg-ink text-white' : 'text-ink/70'}`}>EN</button><button aria-pressed={language === 'id'} onClick={() => onChange('id')} className={`rounded-full px-3 py-1.5 transition ${language === 'id' ? 'bg-ink text-white' : 'text-ink/70'}`}>ID</button></div>
 }
 export function ProgressBar({ current }: { current: number }) { return <div className="h-2 overflow-hidden rounded-full bg-ink/10" role="progressbar" aria-valuemin={1} aria-valuemax={16} aria-valuenow={current}><div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${(current / 16) * 100}%` }} /></div> }
-export function VideoEmbed({ src, title, onEnded }: { src: string; title: string; onEnded?: () => void }) {
+export function VideoEmbed({
+  src,
+  title,
+  onEnded,
+  onSeeking,
+  onTimeUpdate,
+}: {
+  src: string
+  title: string
+  onEnded?: () => void
+  onSeeking?: (event: { currentTarget: HTMLVideoElement }) => void
+  onTimeUpdate?: (event: { currentTarget: HTMLVideoElement }) => void
+}) {
   return (
     <div className="overflow-hidden rounded-3xl border border-ink/10 bg-ink/5">
       <video
@@ -22,6 +34,8 @@ export function VideoEmbed({ src, title, onEnded }: { src: string; title: string
         playsInline
         preload="metadata"
         onEnded={onEnded}
+        onSeeking={onSeeking}
+        onTimeUpdate={onTimeUpdate}
       />
     </div>
   )
