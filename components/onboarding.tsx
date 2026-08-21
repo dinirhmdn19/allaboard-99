@@ -45,12 +45,45 @@ export default function Onboarding() {
 
     setReady(true)
   }
+  async function signInWithGoogle() {
+    if (!supabase || !isSupabaseConfigured) {
+      setError('This site is not configured yet. Please contact the People Team.')
+      return
+    }
+
+    setBusy(true)
+    setError('')
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+
+    if (error) {
+      setError('Unable to sign in with Google. Please try again or contact the People Team.')
+      setBusy(false)
+    }
+  }
+
   async function lookup(e: React.FormEvent) { e.preventDefault(); const normalised = email.trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(normalised)) { setError(t.emailError); return } if (!supabase || !isSupabaseConfigured) { setError('This site is not configured yet. Please contact the People Team.'); return } setBusy(true); setError(''); const { data } = await supabase.from('onboarding_employees').select('id,email,name,alias,department,employee_status').eq('email', normalised).maybeSingle(); const status = String(data?.employee_status || '').toLowerCase(); if (!data || status !== 'active') { setError(t.notFound); setBusy(false); return } const person: Employee = { id: data.id, email: data.email, name: data.name, alias: data.alias, department: data.department }; saveSession(person); setEmployee(person); const { data: existing } = await supabase.from('onboarding_progress').select('current_step').eq('employee_id', person.id).maybeSingle(); if (!existing) await supabase.from('onboarding_progress').insert({ employee_id: person.id, current_step: 1, started_at: new Date().toISOString() }); await hydrate(person); setBusy(false) }
   async function persistStep(stepNumber: number, final = false) { if (!employee || !supabase) return true; setBusy(true); const now = new Date().toISOString(); const one = await supabase.from('onboarding_step_progress').upsert({ employee_id: employee.id, step_number: stepNumber, completed: true, completed_at: now }, { onConflict: 'employee_id,step_number' }); const two = await supabase.from('onboarding_progress').upsert({ employee_id: employee.id, current_step: Math.min(stepNumber + 1, 15), ...(final ? { completed_at: now } : {}) }, { onConflict: 'employee_id' }); setBusy(false); if (one.error || two.error) { setError(t.saveError); return false } setCompleted(prev => prev.includes(stepNumber) ? prev : [...prev, stepNumber]); return true }
   async function advance() { setError(''); const final = current === 15; if (await persistStep(current, final)) setCurrent(Math.min(15, current + 1)) }
   function back() { setError(''); setCurrent(Math.max(1, current - 1)) }
   if (!ready) return <main className="grid min-h-screen place-items-center p-6 text-ink"><p className="animate-pulse">{t.loading}</p></main>
-  if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10"><header className="mb-14 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><p className="mb-3 text-sm font-bold uppercase tracking-[.16em] text-leaf">99 Group</p><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t.emailTitle}</h1><p className="mt-4 max-w-md text-lg leading-relaxed text-ink/70">One person. One journey. One step at a time.</p><form className="mt-10" onSubmit={lookup}><label className="mb-2 block font-semibold" htmlFor="email">{t.emailQuestion}</label><input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t.emailPlaceholder} autoComplete="email" className="w-full rounded-2xl border border-ink/20 px-4 py-3.5 transition focus:border-leaf" /><p className="mt-2 min-h-5 text-sm text-red-700" role="alert">{error}</p><Button type="submit" disabled={busy} className="mt-5 w-full">{busy ? t.loading : t.continue}</Button></form></section></main>
+  if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10"><header className="mb-14 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><p className="mb-3 text-sm font-bold uppercase tracking-[.16em] text-leaf">99 Group</p><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t.emailTitle}</h1><p className="mt-4 max-w-md text-lg leading-relaxed text-ink/70">One person. One journey. One step at a time.</p><div className="mt-10">
+        <Button type="button" onClick={signInWithGoogle} disabled={busy} className="w-full">
+          {busy ? t.loading : 'Continue with Google'}
+        </Button>
+        <div className="my-5 flex items-center gap-3 text-sm text-ink/50">
+          <div className="h-px flex-1 bg-ink/10" />
+          <span>or</span>
+          <div className="h-px flex-1 bg-ink/10" />
+        </div>
+      </div>
+
+      <form className="mt-10" onSubmit={lookup}><label className="mb-2 block font-semibold" htmlFor="email">{t.emailQuestion}</label><input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t.emailPlaceholder} autoComplete="email" className="w-full rounded-2xl border border-ink/20 px-4 py-3.5 transition focus:border-leaf" /><p className="mt-2 min-h-5 text-sm text-red-700" role="alert">{error}</p><Button type="submit" disabled={busy} className="mt-5 w-full">{busy ? t.loading : t.continue}</Button></form></section></main>
   const isRequiredVideoStep = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
   const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
   return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} 15</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== 15 && (
