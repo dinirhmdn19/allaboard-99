@@ -3,7 +3,7 @@ import type { Step } from '@/types'
 export const steps: Step[] = [
   { number: 1, kind: 'welcome', title: 'Welcome' },
   { number: 2, kind: 'welcome', title: 'Meet Your Team' },
-  { number: 3, kind: 'video', title: 'Watch Video: Story, Mission, and Leaders', videoId: '1lN0IN4_lRBhsbvqpNDuSy0EmQWUxQ6ob' },
+  { number: 3, kind: 'video', title: 'Watch Video: Our Story, Mission, and Leaders', videoId: '1lN0IN4_lRBhsbvqpNDuSy0EmQWUxQ6ob' },
   { number: 4, kind: 'video', title: 'Watch Video: Values, Culture, and Environment', videoId: '1VA7M_PCA1mwpEk9wMAdAuBJHcrt1qgVw' },
   { number: 5, kind: 'video', title: 'Watch Video: Flywheel, Operations, and Systems', videoId: '1VIdNBTTrFcBNc_6a1PNcVDzSHPnfVEpa' },
   { number: 6, kind: 'video', title: 'Watch Video: Resources, Support, and Community', videoId: '1zB8jyX9PEgVlkTloNRZMyLPMV2xBpQMX' },
