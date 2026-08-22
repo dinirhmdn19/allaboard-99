@@ -315,7 +315,30 @@ const [copied, setCopied] = useState(false);
   }
   const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
-  if (step.number === 2) return <><h1 className="text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re joining the {employee.department || '99 Group'} team.</h1><p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">Here&apos;s a quick look at the 99ers you&apos;ll be working with.</p><ExternalLink href={TEAM_URL} className="mt-8">See who&apos;s in your team</ExternalLink></>
+  if (step.number === 2) return (
+  <>
+    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+      You&apos;re joining the {employee.department || '99 Group'} team.
+    </h1>
+
+    <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/70">
+      Here&apos;s a quick look at the 99ers you&apos;ll be working with.
+    </p>
+
+    <div className="mt-8 overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-sm">
+      <iframe
+        title="99 Group Team Directory"
+        src={TEAM_URL}
+        className="h-[600px] w-full border-0"
+        loading="lazy"
+      />
+    </div>
+
+    <ExternalLink href={TEAM_URL} className="mt-5">
+      Open team directory in a new tab
+    </ExternalLink>
+  </>
+)
 	  if (step.kind === 'video') {
 	    const configuredVideo = videos.find(v => v.step_number === step.number)
 	    const videoSrc = VIDEO_URLS[step.number] || null
