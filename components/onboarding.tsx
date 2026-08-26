@@ -506,6 +506,14 @@ const [copied, setCopied] = useState(false);
       Here&apos;s a quick look at the 99ers you&apos;ll be working with.
     </p>
 
+    <p className="mt-6 text-sm font-bold uppercase tracking-[.16em] text-leaf">
+      How to explore your team
+    </p>
+
+    <p className="mt-2 max-w-xl text-base leading-relaxed text-ink/70">
+      Click your team name in the left-side menu to see your teammates. You can also browse other teams to get a better sense of who&apos;s who across 99 Group.
+    </p>
+
     <div className="mt-8 overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-sm">
       <iframe
         title="99 Group Team Directory"
@@ -516,7 +524,7 @@ const [copied, setCopied] = useState(false);
     </div>
 
     <ExternalLink href={TEAM_URL} className="mt-5">
-      Open team directory in a new tab
+      Open the site in a new tab ↗
     </ExternalLink>
   </>
 )
