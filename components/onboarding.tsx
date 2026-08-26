@@ -200,7 +200,6 @@ export default function Onboarding() {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
-        flowType: 'pkce',
       },
     })
 
