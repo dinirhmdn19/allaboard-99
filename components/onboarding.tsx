@@ -8,12 +8,6 @@ import type { Employee, Language, OnboardingVideo } from '@/types'
 import { Button, ExternalLink, LanguageToggle, ProgressBar, VideoEmbed } from './ui'
 
 const TEAM_URL = 'https://script.google.com/a/macros/99.co/s/AKfycbz_Jc4g49bqxmcxW_6TtCIgv2NFthp6lNEj_Yrk9IE5jd_rxO1taTEKRR3g5B99UtVc/exec?pli=1'
-const friendlyTitles: Record<number, string> = {
-  3: 'Onboarding Video: Our Story, Mission and Leaders',
-  4: 'Onboarding Video: Our Flywheel, Operations and Systems',
-  5: 'Onboarding Video: Our Values, Culture and Environment',
-  6: 'Onboarding Video: Our Resources, Support and Community',
-}
 const REQUIRED_VIDEO_STEPS = new Set([3, 4, 5, 6])
 const VIDEO_URLS: Record<number, string> = {
   3: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-3.mp4',
@@ -28,6 +22,114 @@ export default function Onboarding() {
   const [videos, setVideos] = useState<OnboardingVideo[]>([])
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const t = translations[language]; const step = steps[current - 1]
+
+  const clearCallbackFromUrl = () => {
+    if (typeof window === 'undefined') return
+
+    const url = new URL(window.location.href)
+    url.search = ''
+    url.hash = ''
+    window.history.replaceState({}, '', url.toString())
+  }
+  const getAuthError = (errorDescription: string | null, errorCode: string | null) => {
+    if (errorDescription) return errorDescription
+    if (errorCode) return `Sign-in failed: ${errorCode}`
+    return 'Unable to sign in with Google. Please try again or contact the People Team.'
+  }
+  async function handleOAuthCallback() {
+    if (!supabase || typeof window === 'undefined') return false
+
+    const url = new URL(window.location.href)
+    const params = url.searchParams
+    const error = params.get('error')
+    const errorDescription = params.get('error_description')
+
+    if (error) {
+      setError(getAuthError(errorDescription, error))
+      clearCallbackFromUrl()
+      return false
+    }
+
+    const authCode = params.get('code')
+    if (authCode) {
+      const exchangeCode = params.get('sb_flow_id')
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode, exchangeCode ? { flowId: exchangeCode } : undefined)
+
+      if (exchangeError) {
+        console.error('Failed exchangeCodeForSession', exchangeError)
+        setError('Unable to establish Google session. Please try again or contact the People Team.')
+        clearCallbackFromUrl()
+        return false
+      }
+
+      clearCallbackFromUrl()
+      return true
+    }
+
+    const hash = url.hash
+    const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash)
+    const accessToken = hashParams.get('access_token')
+    const refreshToken = hashParams.get('refresh_token')
+
+    if (accessToken && refreshToken) {
+      const { error: setSessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      })
+
+      if (setSessionError) {
+        console.error('Failed setSession', setSessionError)
+        setError('Unable to establish Google session. Please try again or contact the People Team.')
+        clearCallbackFromUrl()
+        return false
+      }
+
+      clearCallbackFromUrl()
+      return true
+    }
+
+    return false
+  }
+
+  const ensureAuthState = async () => {
+    if (!supabase) {
+      setReady(true)
+      return
+    }
+
+    const found = getSession()
+    const callbackHandled = await handleOAuthCallback()
+
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+    if (sessionError) {
+      console.error('getSession failed', sessionError)
+      setError('Unable to verify your account. Please contact the People Team.')
+      setReady(true)
+      return
+    }
+
+    if (session?.user?.email) {
+      await loadGoogleEmployee(session.user.email, { force: true })
+      return
+    }
+
+    if (found) {
+      if (callbackHandled) {
+        setError('Your Google sign-in did not return a valid session. Please try again.')
+      }
+
+      clearSession()
+      setEmployee(null)
+      setCurrent(1)
+      setCompleted([])
+      setReady(true)
+      return
+    }
+
+    setReady(true)
+  }
+
   useEffect(() => {
     setLanguage(getLanguage())
 
@@ -36,30 +138,20 @@ export default function Onboarding() {
       return
     }
 
-    const initialise = async () => {
-      const found = getSession()
-
-      if (found) {
-        setEmployee(found)
-        await hydrate(found)
-        return
-      }
-
-      const { data: { session } } = await supabase.auth.getSession()
-
-      if (session?.user?.email) {
-        await loadGoogleEmployee(session.user.email)
-        return
-      }
-
-      setReady(true)
-    }
-
-    initialise()
+    ensureAuthState()
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user?.email && !getSession()) {
-        await loadGoogleEmployee(session.user.email)
+      if (event === 'SIGNED_IN' && session?.user?.email) {
+        await loadGoogleEmployee(session.user.email, { force: true })
+        return
+      }
+
+      if (event === 'SIGNED_OUT') {
+        clearSession()
+        setEmployee(null)
+        setCurrent(1)
+        setCompleted([])
+        setReady(true)
       }
     })
 
@@ -77,9 +169,21 @@ export default function Onboarding() {
       supabase.from('onboarding_videos').select('step_number,title,storage_path,is_active').in('step_number', [3,4,5,6]).eq('is_active', true).order('step_number')
     ])
 
-    if (progress.data) setCurrent(Math.min(progress.data.current_step || 1, 15))
-    if (stepProgress.data) setCompleted(stepProgress.data.map(x => x.step_number))
-    if (videoConfig.data) setVideos(videoConfig.data)
+    if (progress.error) console.error('Failed to load onboarding progress', progress.error)
+    if (stepProgress.error) console.error('Failed to load completed steps', stepProgress.error)
+    if (videoConfig.error) console.error('Failed to load videos', videoConfig.error)
+
+    if (progress.data) {
+      setCurrent(Math.min(progress.data.current_step || 1, 15))
+    }
+
+    if (stepProgress.data) {
+      setCompleted(stepProgress.data.map(x => x.step_number))
+    }
+
+    if (videoConfig.data) {
+      setVideos(videoConfig.data)
+    }
 
     setReady(true)
   }
@@ -96,6 +200,7 @@ export default function Onboarding() {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        flowType: 'pkce',
       },
     })
 
@@ -105,10 +210,19 @@ export default function Onboarding() {
     }
   }
 
-  async function loadGoogleEmployee(userEmail: string) {
+  async function loadGoogleEmployee(userEmail: string, options: { force?: boolean } = {}) {
     if (!supabase) return
 
     const normalised = userEmail.trim().toLowerCase()
+    setBusy(true)
+    setError('')
+    const stored = getSession()
+    if (options.force && stored && stored.email.toLowerCase() !== normalised) {
+      clearSession()
+      setEmployee(null)
+      setCurrent(1)
+      setCompleted([])
+    }
 
     const { data, error } = await supabase
       .from('onboarding_employees')
@@ -119,6 +233,7 @@ export default function Onboarding() {
     if (error) {
       setError('Unable to verify your account. Please contact the People Team.')
       setBusy(false)
+      setReady(true)
       return
     }
 
@@ -128,6 +243,7 @@ export default function Onboarding() {
       setError('Your Google account is not registered for AllAboard@99. Please contact the People Team.')
       await supabase.auth.signOut()
       setBusy(false)
+      setReady(true)
       return
     }
 
@@ -142,28 +258,94 @@ export default function Onboarding() {
     saveSession(person)
     setEmployee(person)
 
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from('onboarding_progress')
       .select('current_step')
       .eq('employee_id', person.id)
       .maybeSingle()
 
+    if (existingError) {
+      console.error('Failed to load onboarding progress', existingError)
+      setError(t.saveError)
+      setBusy(false)
+      setReady(true)
+      return
+    }
+
     if (!existing) {
-      await supabase
+      const { error: insertError } = await supabase
         .from('onboarding_progress')
         .insert({
           employee_id: person.id,
           current_step: 1,
           started_at: new Date().toISOString(),
         })
+      if (insertError) {
+        console.error('Failed to create onboarding progress', insertError)
+        setError(t.saveError)
+        setBusy(false)
+        setReady(true)
+        return
+      }
     }
 
     await hydrate(person)
     setBusy(false)
   }
 
-  async function persistStep(stepNumber: number, final = false) { if (!employee || !supabase) return true; setBusy(true); const now = new Date().toISOString(); const one = await supabase.from('onboarding_step_progress').upsert({ employee_id: employee.id, step_number: stepNumber, completed: true, completed_at: now }, { onConflict: 'employee_id,step_number' }); const two = await supabase.from('onboarding_progress').upsert({ employee_id: employee.id, current_step: Math.min(stepNumber + 1, 15), ...(final ? { completed_at: now } : {}) }, { onConflict: 'employee_id' }); setBusy(false); if (one.error || two.error) { setError(t.saveError); return false } setCompleted(prev => prev.includes(stepNumber) ? prev : [...prev, stepNumber]); return true }
-  async function advance() { setError(''); const final = current === 15; if (await persistStep(current, final)) setCurrent(Math.min(15, current + 1)) }
+  async function persistStep(stepNumber: number, final = false) {
+    if (!employee || !supabase) {
+      setError(t.saveError)
+      return false
+    }
+
+    setBusy(true)
+    setError('')
+    const now = new Date().toISOString()
+    try {
+      const one = await supabase.from('onboarding_step_progress').upsert({
+        employee_id: employee.id,
+        step_number: stepNumber,
+        completed: true,
+        completed_at: now,
+      }, { onConflict: 'employee_id,step_number' })
+
+      const two = await supabase.from('onboarding_progress').upsert({
+        employee_id: employee.id,
+        current_step: Math.min(stepNumber + 1, 15),
+        ...(final ? { completed_at: now } : {}),
+      }, { onConflict: 'employee_id' })
+
+      if (one.error || two.error) {
+        console.error('Failed to persist onboarding step', { oneError: one.error?.message, twoError: two.error?.message })
+        setError(t.saveError)
+        return false
+      }
+
+      setCompleted(prev => prev.includes(stepNumber) ? prev : [...prev, stepNumber])
+      return true
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function signOutFromApp() {
+    setBusy(true)
+    await supabase?.auth.signOut()
+    clearSession()
+    setEmployee(null)
+    setCurrent(1)
+    setCompleted([])
+    setBusy(false)
+    setError('')
+    setReady(true)
+  }
+
+  async function advance() {
+    setError('')
+    const final = current === 15
+    if (await persistStep(current, final)) setCurrent(Math.min(15, current + 1))
+  }
   function back() { setError(''); setCurrent(Math.max(1, current - 1)) }
   if (!ready) return <main className="grid min-h-screen place-items-center p-6 text-ink"><p className="animate-pulse">{t.loading}</p></main>
   if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10">
@@ -200,7 +382,7 @@ export default function Onboarding() {
       </p>
     )}
   </div>
-)}</nav></div><button onClick={() => { clearSession(); setEmployee(null); setCurrent(1); setCompleted([]) }} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
+)}</nav></div><button onClick={signOutFromApp} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
 }
 
 function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd }: {
