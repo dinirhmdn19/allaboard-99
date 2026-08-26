@@ -524,7 +524,7 @@ const [copied, setCopied] = useState(false);
     </div>
 
     <ExternalLink href={TEAM_URL} className="mt-5">
-      Open the site in a new tab ↗
+      Open the site in a new tab
     </ExternalLink>
   </>
 )
