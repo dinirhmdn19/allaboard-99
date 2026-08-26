@@ -439,9 +439,10 @@ function StepContent({ step, employee, t, language, videos, onAdvance, busy, err
   const [videoLocked, setVideoLocked] = useState(false)
   const [videoWatchedUntil, setVideoWatchedUntil] = useState(0)
   const [reflectionSaved, setReflectionSaved] = useState(false);
-const [answers, setAnswers] = useState<Record<string,string>>({});
+  const [answers, setAnswers] = useState<Record<string,string>>({});
 const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]);
 const [copied, setCopied] = useState(false);
+  const slackProfileGuidelineUrl = supabase?.storage.from('slack guideline').getPublicUrl('slack-photo-guideline.jpg').data.publicUrl
 
   const isRequiredVideo = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
 
@@ -600,6 +601,22 @@ const [copied, setCopied] = useState(false);
     </>
   }
   if (step.kind === 'reflection') return <><h1 className="text-4xl font-bold tracking-tight">A note to your future self.</h1><p className="mt-4 max-w-2xl leading-relaxed text-ink/70">{t.reflection}</p>{reflectionSaved ? <div className="mt-7 rounded-2xl bg-leaf/10 p-6 text-lg font-semibold text-leaf">Thank you for sharing your thoughts. We’ll bring them back to you on your 30th day here.</div> : <><div className="mt-7 space-y-5">{reflectionQuestions.map(q => <label key={q} className="block font-semibold">{q}<textarea value={answers[q] || ''} onChange={e => setAnswers({...answers,[q]:e.target.value})} className="mt-2 min-h-24 w-full rounded-2xl border border-ink/20 p-4 font-normal" /></label>)}</div><Button variant="secondary" onClick={saveReflections} className="mt-4">{t.done}</Button></>}</>
+  if (step.number === 7) return <>
+    <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
+    <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Update your Slack profile.</h1>
+    <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">To help everyone recognise and connect with you easily, please update your profile photo, add your manager, and include your role and department.</p>
+    <h2 className="mt-7 text-2xl font-bold">Photo Profile Guideline</h2>
+    {slackProfileGuidelineUrl ? (
+      <img
+        src={slackProfileGuidelineUrl}
+        alt="Slack profile photo guideline"
+        className="mt-4 w-full max-w-3xl rounded-2xl border border-ink/10 shadow-sm"
+      />
+    ) : (
+      <p className="mt-4 rounded-2xl bg-ink/5 p-4 text-ink/60">Guideline image unavailable.</p>
+    )}
+    {step.externalUrl && <ExternalLink href={step.externalUrl} className="mt-8">{t.openSlack}</ExternalLink>}
+  </>
   if (step.kind === 'manager') return <><h1 className="text-4xl font-bold tracking-tight">Questions for your manager.</h1><p className="mt-4 leading-relaxed text-ink/70">{t.manager}</p><div className="mt-7 rounded-2xl bg-ink/5 p-5 whitespace-pre-wrap">{questions.length ? managerMessage : t.noQuestions}</div><div className="mt-4 flex gap-3"><Button variant="secondary" onClick={() => { navigator.clipboard.writeText(managerMessage); setCopied(true) }}>{copied ? t.copied : t.copyQuestions}</Button><ExternalLink href="https://99dotco.slack.com/team/U06JQRW0YLW">{t.openSlack}</ExternalLink></div></>
   if (step.kind === 'complete') return <><div className="grid h-16 w-16 place-items-center rounded-full bg-leaf text-3xl text-white">✓</div><h1 className="mt-6 text-5xl font-bold tracking-tight">You’re all set.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Now you are ready for your #YourWayHome journey.</p><p className="mt-8 rounded-2xl bg-leaf/10 p-4 font-semibold text-leaf">{t.allDone}</p></>
   if (step.kind === 'thanks') return <><div className="text-6xl">✦</div><h1 className="mt-5 text-5xl font-bold tracking-tight">Thank you.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Your AllAboard!@99 journey is complete. We’re excited to have you with us.</p>{step.externalUrl && <ExternalLink href={step.externalUrl} className="mt-8">{t.checkPlatforms}</ExternalLink>}</>
