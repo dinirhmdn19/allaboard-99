@@ -540,6 +540,7 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
     }
 
     setReflectionSaved(false)
+    const client = supabase
     const records = reflectionQuestions
       .map(question => ({ question, answer: (answers[question] || '').trim() }))
       .filter((q): q is { question: string; answer: string } => Boolean(q.answer))
@@ -572,7 +573,7 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
         .filter(({ question }) => existingByQuestion.has(question))
         .flatMap(({ question, answer }) =>
           (existingByQuestion.get(question) || []).map(id =>
-            supabase
+            client
               .from('onboarding_reflections')
               .update({ answer, updated_at: now })
               .eq('id', id)
