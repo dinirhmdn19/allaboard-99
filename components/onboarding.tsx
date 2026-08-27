@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { steps, reflectionQuestions } from '@/config/steps'
+import { steps } from '@/config/steps'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { clearSession, getLanguage, getSession, saveLanguage, saveSession } from '@/lib/session'
 import { translations } from '@/translations'
@@ -533,6 +533,19 @@ const [copied, setCopied] = useState(false);
     setReflectionSaved(true);
   }
   const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
+  const reflectionQuestions = language === 'id'
+    ? [
+      'Hal apa yang ingin saya ingat dari hari pertama saya?',
+      'Apa satu hal yang ingin saya mulai lakukan?',
+      'Apa satu hal yang ingin saya hentikan agar tidak menghambat diri saya?',
+      'Apa saja hobi Anda, dan komunitas seperti apa yang ingin Anda temukan di sini?',
+    ]
+    : [
+      'What do I want to remember about my first day?',
+      'What is one thing I want to start doing?',
+      'What is one thing I want to stop holding myself back from?',
+      'What are your hobbies, and what kind of community would you like to find here?',
+    ]
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
   if (step.number === 2) return (
   <>
@@ -600,7 +613,7 @@ const [copied, setCopied] = useState(false);
       </Button>
     </>
   }
-  if (step.kind === 'reflection') return <><h1 className="text-4xl font-bold tracking-tight">A note to your future self.</h1><p className="mt-4 max-w-2xl leading-relaxed text-ink/70">{t.reflection}</p>{reflectionSaved ? <div className="mt-7 rounded-2xl bg-leaf/10 p-6 text-lg font-semibold text-leaf">Thank you for sharing your thoughts. We’ll bring them back to you on your 30th day here.</div> : <><div className="mt-7 space-y-5">{reflectionQuestions.map(q => <label key={q} className="block font-semibold">{q}<textarea value={answers[q] || ''} onChange={e => setAnswers({...answers,[q]:e.target.value})} className="mt-2 min-h-24 w-full rounded-2xl border border-ink/20 p-4 font-normal" /></label>)}</div><Button variant="secondary" onClick={saveReflections} className="mt-4">{t.done}</Button></>}</>
+  if (step.kind === 'reflection') return <><h1 className="text-4xl font-bold tracking-tight">A note to your future self.</h1><p className="mt-4 max-w-2xl leading-relaxed text-ink/70">{t.reflection}</p>{reflectionSaved ? <div className="mt-7 rounded-2xl bg-leaf/10 p-6 text-lg font-semibold text-leaf">Thank you for sharing your thoughts. We’ll bring them back to you on your 30th day here.</div> : <><div className="mt-7 space-y-5">{reflectionQuestions.map((q, index) => <label key={q} className="block font-semibold">{q}{index === 3 ? <input type="text" value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} placeholder="e.g. Karaoke, Running, K-Pop, etc." className="mt-2 w-full rounded-2xl border border-ink/20 p-4" /> : <textarea value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} className="mt-2 min-h-24 w-full rounded-2xl border border-ink/20 p-4 font-normal" />}</label>)}</div><Button variant="secondary" onClick={saveReflections} className="mt-4">{t.done}</Button></>}</>
   if (step.number === 7) return <>
     <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
     <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Update your Slack profile.</h1>
