@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { steps } from '@/config/steps'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { clearSession, getLanguage, getSession, saveLanguage, saveSession } from '@/lib/session'
@@ -23,7 +23,11 @@ export default function Onboarding() {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const [declarationStatus, setDeclarationStatus] = useState<'idle' | 'checking' | 'found' | 'not_found' | 'error'>('idle')
   const [reflectionSaved, setReflectionSaved] = useState(false)
+  const declarationPollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const declarationPollActiveRef = useRef(false)
   const t = translations[language]; const step = steps[current - 1]
+  const DECLARATION_POLL_INTERVAL_MS = 10_000
+  const DECLARATION_POLL_TIMEOUT_MS = 45_000
 
   const clearCallbackFromUrl = () => {
     if (typeof window === 'undefined') return
@@ -354,34 +358,117 @@ export default function Onboarding() {
     if (await persistStep(current, final)) setCurrent(Math.min(15, current + 1))
   }
   async function checkDeclarationSubmission() {
-    if (!employee || !supabase || declarationStatus === 'checking') return
+    if (!employee || !supabase || declarationPollActiveRef.current) return
 
     setDeclarationStatus('checking')
+    declarationPollActiveRef.current = true
     setError('')
+    const startedAt = Date.now()
 
-    try {
-      const normalizedEmail = employee.email.trim().toLowerCase()
-      const { data, error } = await supabase
-        .from('declaration_submissions')
-        .select('id')
-        .ilike('email', normalizedEmail)
-        .limit(1)
-        .maybeSingle()
-
-      if (error) {
-        console.error('Failed to check declaration submission', error)
-        setError('We couldn’t check your submission. Please try again.')
-        setDeclarationStatus('error')
-        return
+    const clearDeclarationPollTimeout = () => {
+      if (declarationPollTimeoutRef.current) {
+        clearTimeout(declarationPollTimeoutRef.current)
+        declarationPollTimeoutRef.current = null
       }
+    }
 
-      setDeclarationStatus(data ? 'found' : 'not_found')
-    } catch (error) {
-      console.error('Failed to check declaration submission', error)
+    const stopDeclarationPolling = () => {
+      declarationPollActiveRef.current = false
+      clearDeclarationPollTimeout()
+    }
+
+    const scheduleDeclarationPoll = (nextCheckInMs: number) => {
+      declarationPollTimeoutRef.current = setTimeout(() => {
+        if (!declarationPollActiveRef.current) return
+        void checkDeclarationOnce(startedAt)
+      }, nextCheckInMs)
+    }
+
+    const finishDeclarationPollNotFound = () => {
+      stopDeclarationPolling()
+      setDeclarationStatus('not_found')
+    }
+
+    const finishDeclarationPollError = () => {
+      stopDeclarationPolling()
       setError('We couldn’t check your submission. Please try again.')
       setDeclarationStatus('error')
     }
+
+    const checkDeclarationOnce = async (pollStartedAt: number) => {
+      if (!declarationPollActiveRef.current || !employee || !supabase) return
+
+      try {
+        const normalizedEmail = employee.email.trim().toLowerCase()
+        const { data, error } = await supabase
+          .from('declaration_submissions')
+          .select('id')
+          .ilike('email', normalizedEmail)
+          .limit(1)
+          .maybeSingle()
+
+        if (!declarationPollActiveRef.current) return
+
+        if (error) {
+          console.error('Failed to check declaration submission', error)
+          finishDeclarationPollError()
+          return
+        }
+
+        if (data) {
+          stopDeclarationPolling()
+          setDeclarationStatus('found')
+          return
+        }
+
+        const elapsed = Date.now() - pollStartedAt
+        const remainingTime = DECLARATION_POLL_TIMEOUT_MS - elapsed
+
+        if (remainingTime <= 0) {
+          finishDeclarationPollNotFound()
+          return
+        }
+
+        if (remainingTime <= DECLARATION_POLL_INTERVAL_MS) {
+          declarationPollTimeoutRef.current = setTimeout(() => {
+            if (declarationPollActiveRef.current) finishDeclarationPollNotFound()
+          }, remainingTime)
+          return
+        }
+
+        scheduleDeclarationPoll(DECLARATION_POLL_INTERVAL_MS)
+      } catch (error) {
+        console.error('Failed to check declaration submission', error)
+        if (!declarationPollActiveRef.current) return
+        finishDeclarationPollError()
+      }
+    }
+
+    await checkDeclarationOnce(startedAt)
   }
+  useEffect(() => {
+    if (current === 8) return
+
+    if (declarationPollTimeoutRef.current) {
+      clearTimeout(declarationPollTimeoutRef.current)
+      declarationPollTimeoutRef.current = null
+    }
+
+    if (declarationStatus === 'checking') {
+      declarationPollActiveRef.current = false
+      setDeclarationStatus('idle')
+    }
+  }, [current, declarationStatus])
+
+  useEffect(() => {
+    return () => {
+      declarationPollActiveRef.current = false
+      if (declarationPollTimeoutRef.current) {
+        clearTimeout(declarationPollTimeoutRef.current)
+        declarationPollTimeoutRef.current = null
+      }
+    }
+  }, [])
   function back() { setError(''); setCurrent(Math.max(1, current - 1)) }
   if (!ready) return <main className="grid min-h-screen place-items-center p-6 text-ink"><p className="animate-pulse">{t.loading}</p></main>
   if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10">
@@ -704,7 +791,7 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
   if (step.kind === 'manager') return <><h1 className="text-4xl font-bold tracking-tight">Questions for your manager.</h1><p className="mt-4 leading-relaxed text-ink/70">{t.manager}</p><div className="mt-7 rounded-2xl bg-ink/5 p-5 whitespace-pre-wrap">{questions.length ? managerMessage : t.noQuestions}</div><div className="mt-4 flex gap-3"><Button variant="secondary" onClick={() => { navigator.clipboard.writeText(managerMessage); setCopied(true) }}>{copied ? t.copied : t.copyQuestions}</Button><ExternalLink href="https://99dotco.slack.com/team/U06JQRW0YLW">{t.openSlack}</ExternalLink></div></>
   if (step.kind === 'complete') return <><div className="grid h-16 w-16 place-items-center rounded-full bg-leaf text-3xl text-white">✓</div><h1 className="mt-6 text-5xl font-bold tracking-tight">You’re all set.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Now you are ready for your #YourWayHome journey.</p><p className="mt-8 rounded-2xl bg-leaf/10 p-4 font-semibold text-leaf">{t.allDone}</p></>
   if (step.kind === 'thanks') return <><div className="text-6xl">✦</div><h1 className="mt-5 text-5xl font-bold tracking-tight">Thank you.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Your AllAboard!@99 journey is complete. We’re excited to have you with us.</p>{step.externalUrl && <ExternalLink href={step.externalUrl} className="mt-8">{t.checkPlatforms}</ExternalLink>}</>
-  if (step.kind === 'form') return <><h1 className="text-4xl font-bold tracking-tight">Fill out your Declaration Form.</h1><div className="mt-7 overflow-hidden rounded-3xl border border-ink/10"><iframe title="Declaration Form" className="h-[390px] w-full" src={step.externalUrl} loading="lazy" /></div>{onCheckDeclaration && <Button onClick={onCheckDeclaration} disabled={declarationStatus === 'checking'} className="mt-4">{declarationStatus === 'checking' ? 'Checking your submission…' : 'Check My Submissions'}</Button>}{declarationStatus === 'found' || isDeclarationSubmitted ? <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Declaration submitted ✓<br />We found your declaration form submission.</p> : null}{declarationStatus === 'not_found' ? <p className="mt-3 rounded-2xl bg-ink/5 p-4 text-ink/70">We couldn’t find your submission yet. Please submit the declaration form first, then check again.</p> : null}{declarationStatus === 'error' ? <p className="mt-3 rounded-2xl bg-red-100 p-4 text-sm text-red-700">We couldn’t check your submission. Please try again.</p> : null}</>
+  if (step.kind === 'form') return <><h1 className="text-4xl font-bold tracking-tight">Fill out your Declaration Form.</h1><div className="mt-7 overflow-hidden rounded-3xl border border-ink/10"><iframe title="Declaration Form" className="h-[390px] w-full" src={step.externalUrl} loading="lazy" /></div>{onCheckDeclaration && !isDeclarationSubmitted && declarationStatus !== 'found' ? <Button onClick={onCheckDeclaration} disabled={declarationStatus === 'checking'} className="mt-4">{declarationStatus === 'checking' ? 'Checking your submission…' : declarationStatus === 'not_found' || declarationStatus === 'error' ? 'Try Again' : 'Check My Submissions'}</Button> : null}{declarationStatus === 'found' || isDeclarationSubmitted ? <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Declaration submitted ✓<br />We found your declaration form submission.</p> : null}{declarationStatus === 'not_found' ? <p className="mt-3 rounded-2xl bg-ink/5 p-4 text-ink/70">We couldn't find your submission yet. Please make sure you&apos;ve submitted the Declaration Form and try again.</p> : null}{declarationStatus === 'error' ? <p className="mt-3 rounded-2xl bg-red-100 p-4 text-sm text-red-700">We couldn’t check your submission. Please try again.</p> : null}</>
   if (step.kind === 'linkedin') return <><h1 className="text-4xl font-bold tracking-tight">Update your LinkedIn profile.</h1><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Show the world that you're a proud 99er. Add our special Proud 99er LinkedIn badge and 99 Group LinkedIn banner to your profile and let your network know you're part of the team.</p><div className="mt-7 grid gap-4 sm:grid-cols-2"><ExternalLink href="https://drive.usercontent.google.com/download?id=1PLqiJtAULCCn5onEThpgxgJawB0hHYV_&export=download&authuser=0&confirm=t&uuid=62150135-e542-4b67-8a77-b004d2c61476&at=AFYLz4MmJN93TOmrJa0cBlxswg0t:1786611872173">Download Banner</ExternalLink><ExternalLink href="https://www.supertwibbon.com/99ersLinkedInProfile">Create LinkedIn Badge</ExternalLink></div><div className="mt-7 flex justify-center">
   <img
     src="/linkedinprofilepreview.jpeg"
