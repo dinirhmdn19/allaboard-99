@@ -407,7 +407,7 @@ export default function Onboarding() {
       onClick={advance}
       disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 8 && !isDeclarationSubmitted)}
     >
-      {current === 15 ? t.done : step.optional ? t.skip : t.next}
+      {current === 15 ? t.done : (current === 9 || current === 10) ? t.next : step.optional ? t.skip : t.next}
     </Button>
     {isRequiredVideoStep && !isVideoCompleted && (
       <p className="text-xs text-ink/60">
