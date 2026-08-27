@@ -22,6 +22,7 @@ export default function Onboarding() {
   const [videos, setVideos] = useState<OnboardingVideo[]>([])
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const [declarationStatus, setDeclarationStatus] = useState<'idle' | 'checking' | 'found' | 'not_found' | 'error'>('idle')
+  const [reflectionSaved, setReflectionSaved] = useState(false)
   const t = translations[language]; const step = steps[current - 1]
 
   const clearCallbackFromUrl = () => {
@@ -259,6 +260,7 @@ export default function Onboarding() {
 
     saveSession(person)
     setEmployee(person)
+    setReflectionSaved(false)
 
     const { data: existing, error: existingError } = await supabase
       .from('onboarding_progress')
@@ -339,6 +341,7 @@ export default function Onboarding() {
     setEmployee(null)
     setCurrent(1)
     setCompleted([])
+    setReflectionSaved(false)
     setBusy(false)
     setError('')
     setReady(true)
@@ -346,6 +349,7 @@ export default function Onboarding() {
 
   async function advance() {
     setError('')
+    if (current === 13 && !reflectionSaved) return
     const final = current === 15
     if (await persistStep(current, final)) setCurrent(Math.min(15, current + 1))
   }
@@ -401,17 +405,22 @@ export default function Onboarding() {
   const isRequiredVideoStep = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
   const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
   const isDeclarationSubmitted = declarationStatus === 'found' || completed.includes(8)
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} 15</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== 15 && (
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} 15</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== 15 && (
   <div className="flex flex-col items-end gap-2">
     <Button
       onClick={advance}
-      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 8 && !isDeclarationSubmitted)}
+      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 8 && !isDeclarationSubmitted) || (step.number === 13 && !reflectionSaved)}
     >
       {current === 15 ? t.done : (current === 9 || current === 10) ? t.next : step.optional ? t.skip : t.next}
     </Button>
     {isRequiredVideoStep && !isVideoCompleted && (
       <p className="text-xs text-ink/60">
         Watch the video until the end to continue.
+      </p>
+    )}
+    {step.number === 13 && !reflectionSaved && (
+      <p className="text-xs text-ink/60">
+        {language === 'id' ? 'Silakan kirim jawaban refleksi Anda sebelum melanjutkan.' : 'Please submit your reflections before continuing.'}
       </p>
     )}
   </div>
@@ -433,15 +442,17 @@ function StepContent({ step, employee, t, language, videos, onAdvance, busy, err
   declarationStatus?: 'idle' | 'checking' | 'found' | 'not_found' | 'error'
   isDeclarationSubmitted?: boolean
   onCheckDeclaration?: () => Promise<void>
+  reflectionSaved: boolean
+  setReflectionSaved: (value: boolean) => void
 }) {
   const [question, setQuestion] = useState('');
 	const [saved, setSaved] = useState(false);
   const [videoLocked, setVideoLocked] = useState(false)
   const [videoWatchedUntil, setVideoWatchedUntil] = useState(0)
-  const [reflectionSaved, setReflectionSaved] = useState(false);
   const [answers, setAnswers] = useState<Record<string,string>>({});
 const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]);
 const [copied, setCopied] = useState(false);
+const [reflectionSaving, setReflectionSaving] = useState(false);
   const slackProfileGuidelineUrl = supabase?.storage.from('slack guideline').getPublicUrl('slack-photo-guideline.jpg').data.publicUrl
 
   const isRequiredVideo = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
@@ -507,36 +518,10 @@ const [copied, setCopied] = useState(false);
 
   setSaved(true);
 }
-  async function saveReflections() {
-    if (!supabase) return;
-    const records = Object.entries(answers)
-      .filter(([, answer]) => answer.trim())
-      .map(([question, answer]) => ({
-        employee_id: employee.id,
-        question,
-        answer
-      }));
-
-    if (!records.length) return;
-
-    setError('');
-    const { error } = await supabase
-      .from('onboarding_reflections')
-      .insert(records);
-
-    if (error) {
-      console.error(error);
-      setError(t.saveError);
-      return;
-    }
-
-    setReflectionSaved(true);
-  }
-  const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   const reflectionQuestions = language === 'id'
     ? [
       'Hal apa yang ingin saya ingat dari hari pertama saya?',
-      'Apa satu hal yang ingin saya mulai lakukan?',
+      'Apa satu hal yang ingin saya mulai melakukan?',
       'Apa satu hal yang ingin saya hentikan agar tidak menghambat diri saya?',
       'Apa saja hobi Anda, dan komunitas seperti apa yang ingin Anda temukan di sini?',
     ]
@@ -546,6 +531,91 @@ const [copied, setCopied] = useState(false);
       'What is one thing I want to stop holding myself back from?',
       'What are your hobbies, and what kind of community would you like to find here?',
     ]
+  async function saveReflections() {
+    if (!supabase) {
+      console.error('Supabase client unavailable while saving reflections')
+      setError(t.saveError)
+      setReflectionSaved(false)
+      return
+    }
+
+    setReflectionSaved(false)
+    const records = reflectionQuestions
+      .map(question => ({ question, answer: (answers[question] || '').trim() }))
+      .filter((q): q is { question: string; answer: string } => Boolean(q.answer))
+
+    setError('')
+    if (!records.length) return
+
+    setReflectionSaving(true)
+    try {
+      const { data: existing, error: queryError } = await supabase
+        .from('onboarding_reflections')
+        .select('id, question, answer')
+        .eq('employee_id', employee.id)
+        .in('question', reflectionQuestions)
+
+      if (queryError) {
+        console.error(queryError)
+        setError(t.saveError)
+        return
+      }
+
+      const existingByQuestion = new Map<string, string[]>()
+      existing?.forEach((row: { question: string; id: string }) => {
+        const list = existingByQuestion.get(row.question) || []
+        existingByQuestion.set(row.question, [...list, row.id])
+      })
+
+      const now = new Date().toISOString()
+      const updates = records
+        .filter(({ question }) => existingByQuestion.has(question))
+        .flatMap(({ question, answer }) =>
+          (existingByQuestion.get(question) || []).map(id =>
+            supabase
+              .from('onboarding_reflections')
+              .update({ answer, updated_at: now })
+              .eq('id', id)
+          )
+        )
+
+      const inserts = records
+        .filter(({ question }) => !existingByQuestion.has(question))
+        .map(({ question, answer }) => ({
+          employee_id: employee.id,
+          question,
+          answer,
+        }))
+
+      const updateResponses = await Promise.all(updates.map(update => update))
+      const updateError = updateResponses.find(response => response.error)?.error
+      if (updateError) {
+        console.error(updateError)
+        setError(t.saveError)
+        setReflectionSaved(false)
+        return
+      }
+
+      if (inserts.length) {
+        const { error: insertError } = await supabase
+          .from('onboarding_reflections')
+          .insert(inserts)
+
+        if (insertError) {
+          console.error(insertError)
+          setError(t.saveError)
+          setReflectionSaved(false)
+          return
+        }
+      }
+
+      setError('')
+      setReflectionSaved(true)
+    } finally {
+      setReflectionSaving(false)
+    }
+  }
+  const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   if (step.number === 1) return <><p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} 1</p><h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Welcome aboard, {employee.alias || 'there'}</h1><h2 className="mt-5 text-xl font-semibold">Your journey at the 99 Group starts here.</h2><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Take a few minutes to get familiar with who we are, how we work, and where to find the things you'll need along the way.</p></>
   if (step.number === 2) return (
   <>
@@ -613,7 +683,7 @@ const [copied, setCopied] = useState(false);
       </Button>
     </>
   }
-  if (step.kind === 'reflection') return <><h1 className="text-4xl font-bold tracking-tight">A note to your future self.</h1><p className="mt-4 max-w-2xl leading-relaxed text-ink/70">{t.reflection}</p>{reflectionSaved ? <div className="mt-7 rounded-2xl bg-leaf/10 p-6 text-lg font-semibold text-leaf">Thank you for sharing your thoughts. We’ll bring them back to you on your 30th day here.</div> : <><div className="mt-7 space-y-5">{reflectionQuestions.map((q, index) => <label key={q} className="block font-semibold">{q}{index === 3 ? <input type="text" value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} placeholder="e.g. Karaoke, Running, K-Pop, etc." className="mt-2 w-full rounded-2xl border border-ink/20 p-4" /> : <textarea value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} className="mt-2 min-h-24 w-full rounded-2xl border border-ink/20 p-4 font-normal" />}</label>)}</div><Button variant="secondary" onClick={saveReflections} className="mt-4">{t.done}</Button></>}</>
+  if (step.kind === 'reflection') return <><h1 className="text-4xl font-bold tracking-tight">A note to your future self.</h1><p className="mt-4 max-w-2xl leading-relaxed text-ink/70">{t.reflection}</p>{reflectionSaved ? <div className="mt-7 rounded-2xl bg-leaf/10 p-6 text-lg font-semibold text-leaf">Thank you for sharing your thoughts. We’ll bring them back to you on your 30th day here.</div> : <><div className="mt-7 space-y-5">{reflectionQuestions.map((q, index) => <label key={q} className="block font-semibold">{q}{index === 3 ? <input type="text" value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} placeholder="e.g. Karaoke, Running, K-Pop, etc." className="mt-2 w-full rounded-2xl border border-ink/20 p-4" /> : <textarea value={answers[q] || ''} onChange={e => setAnswers({ ...answers, [q]: e.target.value })} className="mt-2 min-h-24 w-full rounded-2xl border border-ink/20 p-4 font-normal" />}</label>)}</div><Button variant="secondary" onClick={saveReflections} disabled={reflectionSaving} className="mt-4">{reflectionSaving ? 'Saving...' : (language === 'id' ? 'Kirim' : 'Submit')}</Button>{error && <p className="mt-2 text-sm text-red-700" role="alert">{error}</p>}</>}</>
   if (step.number === 7) return <>
     <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
     <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Update your Slack profile.</h1>
