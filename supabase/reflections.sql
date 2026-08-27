@@ -11,6 +11,25 @@ create table if not exists public.onboarding_reflections (
 create index if not exists onboarding_reflections_employee_id_idx on public.onboarding_reflections(employee_id);
 alter table public.onboarding_reflections enable row level security;
 
--- No public policy is intentionally supplied. Before enabling Step 13 writes in
--- production, add narrowly scoped policies based on the future authenticated user
--- identity (for example, auth.uid() mapped to an employee record).
+-- Narrow policy: allow only the signed-in employee record owner to read/write
+-- their own reflections.
+create policy onboarding_reflections_own_records
+on public.onboarding_reflections
+for all
+to authenticated
+using (
+  exists (
+    select 1
+    from public.onboarding_employees oe
+    where oe.id = employee_id
+      and lower(oe.email) = lower(auth.email())
+  )
+)
+with check (
+  exists (
+    select 1
+    from public.onboarding_employees oe
+    where oe.id = employee_id
+      and lower(oe.email) = lower(auth.email())
+  )
+);
