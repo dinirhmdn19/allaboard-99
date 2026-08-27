@@ -427,7 +427,7 @@ export default function Onboarding() {
 )}</nav></div><button onClick={signOutFromApp} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
 }
 
-function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd, declarationStatus = 'idle', isDeclarationSubmitted = false, onCheckDeclaration }: {
+function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd, declarationStatus = 'idle', isDeclarationSubmitted = false, onCheckDeclaration, reflectionSaved, setReflectionSaved }: {
   step: typeof steps[number]
   employee: Employee
   t: typeof translations.en
