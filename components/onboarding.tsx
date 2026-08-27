@@ -233,7 +233,7 @@ export default function Onboarding() {
 
     const { data, error } = await supabase
       .from('onboarding_employees')
-      .select('id,email,name,alias,department,employee_status')
+      .select('id,email,name,alias,department,job_title,employee_status,manager_name')
       .eq('email', normalised)
       .maybeSingle()
 
@@ -260,6 +260,8 @@ export default function Onboarding() {
       name: data.name,
       alias: data.alias,
       department: data.department,
+      job_title: data.job_title,
+      manager_name: data.manager_name,
     }
 
     saveSession(person)
@@ -776,6 +778,23 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
     <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.step} {step.number}</p>
     <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Update your Slack profile.</h1>
     <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">To help everyone recognise and connect with you easily, please update your profile photo, add your manager, and include your role and department.</p>
+    <div className="mt-7 rounded-2xl border border-ink/10 bg-ink/5 p-5">
+      <h2 className="text-xl font-semibold">What to add to your Slack profile</h2>
+      <dl className="mt-4 space-y-4">
+        <div className="rounded-xl bg-white p-4">
+          <dt className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">Title</dt>
+          <dd className="mt-1 text-base font-semibold text-ink">{employee.job_title || 'Not set'}</dd>
+        </div>
+        <div className="rounded-xl bg-white p-4">
+          <dt className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">Department</dt>
+          <dd className="mt-1 text-base font-semibold text-ink">{employee.department || 'Not set'}</dd>
+        </div>
+        <div className="rounded-xl bg-white p-4">
+          <dt className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">Manager</dt>
+          <dd className="mt-1 text-base font-semibold text-ink">{employee.manager_name?.trim() || 'Not set'}</dd>
+        </div>
+      </dl>
+    </div>
     <h2 className="mt-7 text-2xl font-bold">Photo Profile Guideline</h2>
     {slackProfileGuidelineUrl ? (
       <img
