@@ -204,13 +204,13 @@ export default function Onboarding() {
     if (stepProgress.error) console.error('Failed to load completed steps', stepProgress.error)
     if (videoConfig.error) console.error('Failed to load videos', videoConfig.error)
 
-    if (progress.data) {
-      setCurrent(Math.min(progress.data.current_step || 1, steps.length))
-    }
+    const resolvedCurrent = Math.min(progress.data?.current_step || 1, steps.length)
+    if (progress.data) setCurrent(resolvedCurrent)
 
     if (stepProgress.data) {
       setCompleted(stepProgress.data.map(x => x.step_number))
-      setSystemsCheckSubmitted(stepProgress.data.some(x => x.step_number === SYSTEMS_CHECK_STEP_NUMBER))
+      const hasSystemsCheckStepCompletion = stepProgress.data.some(x => x.step_number === SYSTEMS_CHECK_STEP_NUMBER)
+      setSystemsCheckSubmitted(hasSystemsCheckStepCompletion && resolvedCurrent > SYSTEMS_CHECK_STEP_NUMBER)
       setDeclarationStatus(stepProgress.data.some(x => x.step_number === 9) ? 'found' : 'idle')
     }
 
@@ -562,7 +562,7 @@ export default function Onboarding() {
   const isRequiredVideoStep = step.kind === 'video' && REQUIRED_VIDEO_STEPS.has(step.number)
   const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
   const isDeclarationSubmitted = declarationStatus === 'found' || completed.includes(9)
-  const isSystemsCheckSubmitted = completed.includes(SYSTEMS_CHECK_STEP_NUMBER) || systemsCheckSubmitted
+  const isSystemsCheckSubmitted = systemsCheckSubmitted
   return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== steps.length && (
   <div className="flex flex-col items-end gap-2">
     <Button
@@ -838,21 +838,23 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
           <div key={question.id} className="rounded-2xl border border-ink/10 bg-white p-4">
             <p className="font-semibold">{question.label}</p>
             <div className="mt-3 flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => updateSystemsCheckResponse(question.id, { answer: 'yes' })}
-                className={response.answer === 'yes' ? 'bg-ink/10 border-ink/40' : ''}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => updateSystemsCheckResponse(question.id, { answer: 'no' })}
-                className={response.answer === 'no' ? 'bg-ink/10 border-ink/40' : ''}
-              >
-                No
-              </Button>
-            </div>
+        <Button
+          variant="secondary"
+          onClick={() => updateSystemsCheckResponse(question.id, { answer: 'yes' })}
+          aria-pressed={response.answer === 'yes'}
+          className={response.answer === 'yes' ? 'border-ink/60 !bg-ink/20 !text-ink' : '!bg-white !text-ink/60'}
+        >
+          Yes
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => updateSystemsCheckResponse(question.id, { answer: 'no' })}
+          aria-pressed={response.answer === 'no'}
+          className={response.answer === 'no' ? 'border-ink/60 !bg-ink/20 !text-ink' : '!bg-white !text-ink/60'}
+        >
+          No
+        </Button>
+      </div>
             {isNo ? (
               <label className="mt-3 block font-semibold">
                 What&apos;s the issue?
