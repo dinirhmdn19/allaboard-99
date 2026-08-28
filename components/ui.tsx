@@ -10,7 +10,12 @@ export function ExternalLink({ href, children, className = '' }: { href: string;
 export function LanguageToggle({ language, onChange }: { language: Language; onChange: (l: Language) => void }) {
   return <div className="flex rounded-full border border-ink/15 bg-cream p-1 text-sm shadow-sm" aria-label="Language selector"><button aria-pressed={language === 'en'} onClick={() => onChange('en')} className={`rounded-full px-3 py-1.5 transition ${language === 'en' ? 'bg-ink text-white' : 'text-ink/70'}`}>EN</button><button aria-pressed={language === 'id'} onClick={() => onChange('id')} className={`rounded-full px-3 py-1.5 transition ${language === 'id' ? 'bg-ink text-white' : 'text-ink/70'}`}>ID</button></div>
 }
-export function ProgressBar({ current }: { current: number }) { return <div className="h-2 overflow-hidden rounded-full bg-ink/10" role="progressbar" aria-valuemin={1} aria-valuemax={16} aria-valuenow={current}><div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${(current / 16) * 100}%` }} /></div> }
+export function ProgressBar({ current, total = 16 }: { current: number; total?: number }) {
+  const safeTotal = Math.max(total, 1)
+  const clampedCurrent = Math.min(Math.max(current, 0), safeTotal)
+
+  return <div className="h-2 overflow-hidden rounded-full bg-ink/10" role="progressbar" aria-valuemin={1} aria-valuemax={safeTotal} aria-valuenow={clampedCurrent}><div className="h-full rounded-full bg-coral transition-all duration-500" style={{ width: `${(clampedCurrent / safeTotal) * 100}%` }} /></div>
+}
 export function VideoEmbed({
   src,
   title,

@@ -15,6 +15,168 @@ const VIDEO_URLS: Record<number, string> = {
   6: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-5.mp4',
   7: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/videos/videos:step-6.mp4',
 }
+const DEPARTMENT_MATCHES: Array<{ title: string; keywords: string[]; url: string }> = [
+  { title: 'Product', keywords: ['product'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/product' },
+  { title: 'Engineering', keywords: ['engineering'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/engineering' },
+  { title: 'Data', keywords: ['data'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/data' },
+  { title: 'Marketing', keywords: ['marketing'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/marketing' },
+  { title: 'Finance', keywords: ['finance'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/finance' },
+  { title: 'People', keywords: ['people'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/regional/people' },
+  { title: 'ARMs', keywords: ['arms'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/singapore/arms' },
+  { title: 'Performance Marketing', keywords: ['performance marketing', 'performance'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/singapore/performance-marketing' },
+  { title: 'Partner Success Group', keywords: ['partner success', 'partner'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/singapore/partner-success-group' },
+  { title: 'Listing Business', keywords: ['listing business', 'listing'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/indonesia/listing-business' },
+  { title: 'Developer Business', keywords: ['developer business', 'developer'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/indonesia/developer-business' },
+  { title: 'Bank and Media Sales', keywords: ['bank media', 'bank and media sales', 'media sales'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/indonesia/bank-media-sales' },
+]
+
+const ENDING_PAGE_SECTIONS = [
+  {
+    title: '99 GROUP',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99group-blue.png',
+    social: [
+      { label: 'Instagram', href: 'https://www.instagram.com/lifeat99group/', icon: 'IG' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/99-co', icon: 'IN' },
+      { label: 'TikTok', href: 'https://www.tiktok.com/@lifeat99group', icon: 'TT' },
+    ],
+  },
+  {
+    title: 'RUMAH123',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/rumah123-blue.png',
+    primary: { label: 'Go to Rumah123 Site', href: 'http://rumah123.com/' },
+    app: [
+      { label: 'App Store', href: 'https://apps.apple.com/id/app/rumah123-com/id644854546' },
+      { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.rumah123' },
+    ],
+    social: [
+      { label: 'Instagram', href: 'http://instagram.com/rumah123com/', icon: 'IG' },
+      { label: 'LinkedIn', href: 'http://linkedin.com/company/rumah123', icon: 'IN' },
+      { label: 'TikTok', href: 'https://www.tiktok.com/@rumah123com', icon: 'TT' },
+      { label: 'YouTube', href: 'https://www.youtube.com/channel/UCQRpkeIymZhbrMHsvgRxf2Q?sub_confirmation=1', icon: 'YT' },
+      { label: 'X', href: 'https://twitter.com/rumah123', icon: 'X' },
+      { label: 'Facebook', href: 'https://www.facebook.com/Rumah123/', icon: 'FB' },
+    ],
+  },
+  {
+    title: '99.CO',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99co-blue.png',
+    primary: { label: 'Go to 99.co Site', href: 'http://99.co/' },
+    app: [
+      { label: 'App Store', href: 'https://apps.apple.com/cn/app/99-co-indonesia/id787339517?l=en' },
+      { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.urbanindo.android&hl=en&gl=US' },
+    ],
+    social: [
+      { label: 'Indonesia · Instagram', href: 'https://www.instagram.com/99indonesia/', icon: 'IG' },
+      { label: 'Indonesia · YouTube', href: 'https://bit.ly/42N7VFz', icon: 'YT' },
+      { label: 'Indonesia · X', href: 'https://twitter.com/99dotco_IDN', icon: 'X' },
+      { label: 'Indonesia · Facebook', href: 'https://www.facebook.com/99indonesia', icon: 'FB' },
+      { label: 'Singapore · Instagram', href: 'https://www.instagram.com/99.co', icon: 'IG' },
+      { label: 'Singapore · YouTube', href: 'https://www.youtube.com/channel/UCTFNrxXF9L1XZUlZNq07VKA', icon: 'YT' },
+      { label: 'Singapore · TikTok', href: 'https://www.tiktok.com/@99dotco', icon: 'TT' },
+      { label: 'Singapore · Facebook', href: 'https://www.facebook.com/99dotco', icon: 'FB' },
+    ],
+  },
+  {
+    title: 'SRX',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/srx.png',
+    primary: { label: 'Go to SRX Site', href: 'https://www.srx.com.sg/' },
+  },
+]
+
+function normalizeDepartmentName(value: string | null | undefined) {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function getDepartmentOnboarding(department: string | null) {
+  const normalized = normalizeDepartmentName(department)
+  const found = DEPARTMENT_MATCHES.find((departmentEntry) =>
+    departmentEntry.keywords.some((keyword) => normalized.includes(keyword))
+  )
+  return {
+    title: found?.title || department || 'Department',
+    url: found?.url ?? null,
+    found: Boolean(found),
+  }
+}
+
+function SocialButton({ href, label, icon }: { href: string; label: string; icon: string }) {
+  return (
+    <ExternalLink href={href} className="h-11 px-3 text-sm">
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-xs font-bold text-ink">{icon}</span>
+      <span>{label}</span>
+    </ExternalLink>
+  )
+}
+
+function StoreButton({ href, label }: { href: string; label: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-ink/5">
+      <span className="text-xs font-black uppercase">{label.includes('App') ? '' : '▶'}</span>
+      <span>{label}</span>
+      <span aria-hidden="true">↗</span>
+    </a>
+  )
+}
+
+function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: { employee: Employee; onSignOut: () => void; language: Language; onChangeLanguage: (language: Language) => void }) {
+  const dept = getDepartmentOnboarding(employee.department)
+
+  return (
+    <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8">
+      <header className="mb-6 flex items-center justify-between">
+        <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+        <LanguageToggle language={language} onChange={onChangeLanguage} />
+      </header>
+      <section className="space-y-10 rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10">
+        <div>
+          <p className="font-semibold">Explore</p>
+          <h1 className="mt-1 text-4xl font-bold tracking-tight">Our Platforms!</h1>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          {ENDING_PAGE_SECTIONS.map((section) => (
+            <article key={section.title} className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
+              <div className="flex items-center gap-3">
+                <img src={section.logo} alt={section.title} className="h-10 w-20 rounded-md object-contain" />
+                <p className="text-xl font-semibold">{section.title}</p>
+              </div>
+              {section.primary ? <ExternalLink href={section.primary.href} className="justify-center">{section.primary.label}</ExternalLink> : null}
+              {section.app ? <div className="grid gap-2 sm:grid-cols-2">{section.app.map((app) => <StoreButton key={`${section.title}-${app.label}`} href={app.href} label={app.label} />)}</div> : null}
+              {section.social ? <div className="grid gap-2 sm:grid-cols-2">{section.social.map((item) => <SocialButton key={item.label} href={item.href} label={item.label} icon={item.icon} />)}</div> : null}
+            </article>
+          ))}
+        </div>
+        <div className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
+          <h2 className="text-2xl font-bold">Begin your department onboarding.</h2>
+          <p className="text-sm text-ink/60">Department: {dept.title}</p>
+          {dept.found ? (
+            <>
+              <div className="rounded-2xl border border-ink/10 bg-ink/5 p-2 text-xs text-ink/60">If the embedded page cannot be loaded, use the button below.</div>
+              <iframe
+                title="Department onboarding"
+                src={dept.url as string}
+                className="h-64 w-full rounded-xl border border-ink/10"
+                loading="lazy"
+              />
+              <ExternalLink href={dept.url as string}>Open Site in a New Tab</ExternalLink>
+            </>
+          ) : (
+            <p className="rounded-xl bg-ink/5 p-4 text-sm text-ink">We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.</p>
+          )}
+        </div>
+        <div className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
+          <h2 className="text-2xl font-bold">Ready to take your Online Meetings?</h2>
+          <p className="text-sm text-ink/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
+          <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n">Pick and Download now</ExternalLink>
+        </div>
+        <button onClick={onSignOut} className="text-xs font-semibold text-ink/60 underline">Sign out</button>
+      </section>
+    </main>
+  )
+}
 const SYSTEMS_CHECK_STEP_NUMBER = 3
 const SYSTEMS_CHECK_QUESTIONS = [
   { id: 'slack', label: 'Have you installed Slack on your device?' },
@@ -46,6 +208,7 @@ export default function Onboarding() {
   const [videos, setVideos] = useState<OnboardingVideo[]>([])
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const [declarationStatus, setDeclarationStatus] = useState<'idle' | 'checking' | 'found' | 'not_found' | 'error'>('idle')
+  const [onboardingCompletedAt, setOnboardingCompletedAt] = useState<string | null>(null)
   const [reflectionSaved, setReflectionSaved] = useState(false)
   const [feedbackRating, setFeedbackRating] = useState(0)
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false)
@@ -189,6 +352,7 @@ export default function Onboarding() {
         setEmployee(null)
         setCurrent(1)
         setCompleted([])
+        setOnboardingCompletedAt(null)
         setFeedbackRating(0)
         setFeedbackSubmitted(false)
         setSystemsCheckSubmitted(false)
@@ -221,6 +385,7 @@ export default function Onboarding() {
 
     const resolvedCurrent = Math.min(progress.data?.current_step || 1, steps.length)
     if (progress.data) setCurrent(resolvedCurrent)
+    setOnboardingCompletedAt(progress.data?.completed_at || null)
 
     if (stepProgress.data) {
       setCompleted(stepProgress.data.map(x => x.step_number))
@@ -292,6 +457,7 @@ export default function Onboarding() {
       setEmployee(null)
       setCurrent(1)
       setCompleted([])
+      setOnboardingCompletedAt(null)
       setFeedbackRating(0)
       setFeedbackSubmitted(false)
       setSystemsCheckSubmitted(false)
@@ -341,7 +507,7 @@ export default function Onboarding() {
 
     const { data: existing, error: existingError } = await supabase
       .from('onboarding_progress')
-      .select('current_step')
+      .select('current_step, completed_at')
       .eq('employee_id', person.id)
       .maybeSingle()
 
@@ -404,6 +570,7 @@ export default function Onboarding() {
       }
 
       setCompleted(prev => prev.includes(stepNumber) ? prev : [...prev, stepNumber])
+      if (final) setOnboardingCompletedAt(now)
       return true
     } finally {
       setBusy(false)
@@ -418,6 +585,7 @@ export default function Onboarding() {
     setEmployee(null)
     setCurrent(1)
     setCompleted([])
+    setOnboardingCompletedAt(null)
     setReflectionSaved(false)
     setFeedbackRating(0)
     setFeedbackSubmitted(false)
@@ -605,13 +773,26 @@ export default function Onboarding() {
     }
   }
 
+  async function submitFeedbackAndFinish() {
+    const submitted = await submitFeedback()
+    if (!submitted) return false
+
+    const saved = await persistStep(15, true)
+    if (!saved) {
+      setFeedbackSubmitted(false)
+      return false
+    }
+
+    return true
+  }
+
   async function checkDeclarationSubmission() {
     if (!employee || !supabase || declarationPollActiveRef.current) return
 
     setDeclarationStatus('checking')
     declarationPollActiveRef.current = true
     setError('')
-    const startedAt = Date.now()
+      const startedAt = Date.now()
 
     const clearDeclarationPollTimeout = () => {
       if (declarationPollTimeoutRef.current) {
@@ -741,13 +922,16 @@ export default function Onboarding() {
   const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
   const isDeclarationSubmitted = declarationStatus === 'found' || completed.includes(9)
   const isSystemsCheckSubmitted = systemsCheckSubmitted
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedback} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{(current !== steps.length || current === 15) && (
+  if (onboardingCompletedAt) {
+    return <EndingLandingPage employee={employee} language={language} onChangeLanguage={changeLanguage} onSignOut={signOutFromApp} />
+  }
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} total={steps.length} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedbackAndFinish} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current < steps.length && (
   <div className="flex flex-col items-end gap-2">
     <Button
       onClick={advance}
-      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === 14 && !reflectionSaved) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted) || (step.number === 15 && !feedbackSubmitted)}
+      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === 14 && !reflectionSaved) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted)}
     >
-      {current === steps.length ? t.done : (current === 10 || current === 11) ? t.next : step.optional ? t.skip : t.next}
+      {(current === 10 || current === 11) ? t.next : step.optional ? t.skip : t.next}
     </Button>
     {isRequiredVideoStep && !isVideoCompleted && (
       <p className="text-xs text-ink/60">
@@ -762,11 +946,6 @@ export default function Onboarding() {
     {step.number === 14 && !reflectionSaved && (
       <p className="text-xs text-ink/60">
         {language === 'id' ? 'Silakan kirim jawaban refleksi Anda sebelum melanjutkan.' : 'Please submit your reflections before continuing.'}
-      </p>
-    )}
-    {step.number === 15 && !feedbackSubmitted && (
-      <p className="text-xs text-ink/60">
-        Please submit your rating before continuing.
       </p>
     )}
   </div>
