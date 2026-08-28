@@ -47,6 +47,8 @@ export default function Onboarding() {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false)
   const [declarationStatus, setDeclarationStatus] = useState<'idle' | 'checking' | 'found' | 'not_found' | 'error'>('idle')
   const [reflectionSaved, setReflectionSaved] = useState(false)
+  const [feedbackRating, setFeedbackRating] = useState(0)
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false)
   const [systemsCheckSubmitted, setSystemsCheckSubmitted] = useState(false)
   const [systemsCheckResponses, setSystemsCheckResponses] = useState<SystemsCheckState>(INITIAL_SYSTEMS_CHECK_RESPONSES)
   const declarationPollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -155,6 +157,8 @@ export default function Onboarding() {
       setEmployee(null)
       setCurrent(1)
       setCompleted([])
+      setFeedbackRating(0)
+      setFeedbackSubmitted(false)
       setSystemsCheckSubmitted(false)
       setSystemsCheckResponses(INITIAL_SYSTEMS_CHECK_RESPONSES)
       setReady(true)
@@ -185,6 +189,8 @@ export default function Onboarding() {
         setEmployee(null)
         setCurrent(1)
         setCompleted([])
+        setFeedbackRating(0)
+        setFeedbackSubmitted(false)
         setSystemsCheckSubmitted(false)
         setSystemsCheckResponses(INITIAL_SYSTEMS_CHECK_RESPONSES)
         setReady(true)
@@ -199,17 +205,19 @@ export default function Onboarding() {
   async function hydrate(person: Employee) {
     if (!supabase) { setReady(true); return }
 
-    const [progress, stepProgress, responses, videoConfig] = await Promise.all([
+    const [progress, stepProgress, responses, videoConfig, feedbackRecord] = await Promise.all([
       supabase.from('onboarding_progress').select('current_step, completed_at').eq('employee_id', person.id).maybeSingle(),
       supabase.from('onboarding_step_progress').select('step_number').eq('employee_id', person.id).eq('completed', true),
       supabase.from('onboarding_systems_check_responses').select('question_key,answer,issue').eq('employee_id', person.id),
-      supabase.from('onboarding_videos').select('step_number,title,storage_path,is_active').in('step_number', [4,5,6,7]).eq('is_active', true).order('step_number')
+      supabase.from('onboarding_videos').select('step_number,title,storage_path,is_active').in('step_number', [4,5,6,7]).eq('is_active', true).order('step_number'),
+      supabase.from('onboarding_feedback').select('rating').eq('employee_id', person.id).maybeSingle(),
     ])
 
     if (progress.error) console.error('Failed to load onboarding progress', progress.error)
     if (stepProgress.error) console.error('Failed to load completed steps', stepProgress.error)
     if (responses.error) console.error('Failed to load systems check answers', responses.error)
     if (videoConfig.error) console.error('Failed to load videos', videoConfig.error)
+    if (feedbackRecord.error) console.error('Failed to load existing feedback', feedbackRecord.error)
 
     const resolvedCurrent = Math.min(progress.data?.current_step || 1, steps.length)
     if (progress.data) setCurrent(resolvedCurrent)
@@ -237,6 +245,14 @@ export default function Onboarding() {
 
     if (videoConfig.data) {
       setVideos(videoConfig.data)
+    }
+
+    if (feedbackRecord.data) {
+      setFeedbackRating(feedbackRecord.data.rating || 0)
+      setFeedbackSubmitted(true)
+    } else {
+      setFeedbackRating(0)
+      setFeedbackSubmitted(false)
     }
 
     setReady(true)
@@ -276,6 +292,8 @@ export default function Onboarding() {
       setEmployee(null)
       setCurrent(1)
       setCompleted([])
+      setFeedbackRating(0)
+      setFeedbackSubmitted(false)
       setSystemsCheckSubmitted(false)
       setSystemsCheckResponses(INITIAL_SYSTEMS_CHECK_RESPONSES)
     }
@@ -316,6 +334,8 @@ export default function Onboarding() {
     saveSession(person)
     setEmployee(person)
     setReflectionSaved(false)
+    setFeedbackRating(0)
+    setFeedbackSubmitted(false)
     setSystemsCheckSubmitted(false)
     setSystemsCheckResponses(INITIAL_SYSTEMS_CHECK_RESPONSES)
 
@@ -399,6 +419,8 @@ export default function Onboarding() {
     setCurrent(1)
     setCompleted([])
     setReflectionSaved(false)
+    setFeedbackRating(0)
+    setFeedbackSubmitted(false)
     setSystemsCheckSubmitted(false)
     setSystemsCheckResponses(INITIAL_SYSTEMS_CHECK_RESPONSES)
     setBusy(false)
@@ -409,6 +431,7 @@ export default function Onboarding() {
   async function advance() {
     setError('')
     if (current === 14 && !reflectionSaved) return
+    if (current === 15 && !feedbackSubmitted) return
     const final = current === steps.length
     if (await persistStep(current, final)) setCurrent(Math.min(steps.length, current + 1))
   }
@@ -467,6 +490,7 @@ export default function Onboarding() {
         employee_id: employee.id,
         step_number: SYSTEMS_CHECK_STEP_NUMBER,
         question_key: question.id,
+        question_text: question.label,
         answer: response.answer,
         issue: response.answer === 'no' ? response.issue.trim() : null,
       }
@@ -514,6 +538,71 @@ export default function Onboarding() {
       return true
     }
     return false
+  }
+
+  async function submitFeedback() {
+    if (!employee || !supabase) {
+      setError(t.saveError)
+      return false
+    }
+
+    if (!feedbackRating) {
+      setError('Please select a rating before continuing.')
+      return false
+    }
+
+    setBusy(true)
+    setError('')
+    try {
+      const { data: existing, error: existingError } = await supabase
+        .from('onboarding_feedback')
+        .select('id, rating')
+        .eq('employee_id', employee.id)
+        .maybeSingle()
+
+      if (existingError) {
+        console.error('Failed to check existing feedback', existingError)
+        setError(t.saveError)
+        return false
+      }
+
+      if (existing) {
+        if (existing.rating) setFeedbackRating(existing.rating)
+        setFeedbackSubmitted(true)
+        return true
+      }
+
+      const { error: insertError } = await supabase
+        .from('onboarding_feedback')
+        .insert({
+          employee_id: employee.id,
+          rating: feedbackRating,
+        })
+
+      if (insertError) {
+        const errorCode = (insertError as { code?: string }).code
+        if (errorCode === '23505') {
+          const { data: existingFeedback } = await supabase
+            .from('onboarding_feedback')
+            .select('rating')
+            .eq('employee_id', employee.id)
+            .maybeSingle()
+
+          if (existingFeedback?.rating) setFeedbackRating(existingFeedback.rating)
+          setFeedbackSubmitted(true)
+          return true
+        }
+
+        console.error('Failed to submit feedback', insertError)
+        setError(t.saveError)
+        return false
+      }
+
+      setFeedbackSubmitted(true)
+      return true
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function checkDeclarationSubmission() {
@@ -652,11 +741,11 @@ export default function Onboarding() {
   const isVideoCompleted = isRequiredVideoStep && completed.includes(step.number)
   const isDeclarationSubmitted = declarationStatus === 'found' || completed.includes(9)
   const isSystemsCheckSubmitted = systemsCheckSubmitted
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current !== steps.length && (
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} submitFeedback={submitFeedback} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{(current !== steps.length || current === 15) && (
   <div className="flex flex-col items-end gap-2">
     <Button
       onClick={advance}
-      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === 14 && !reflectionSaved) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted)}
+      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === 14 && !reflectionSaved) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted) || (step.number === 15 && !feedbackSubmitted)}
     >
       {current === steps.length ? t.done : (current === 10 || current === 11) ? t.next : step.optional ? t.skip : t.next}
     </Button>
@@ -675,11 +764,16 @@ export default function Onboarding() {
         {language === 'id' ? 'Silakan kirim jawaban refleksi Anda sebelum melanjutkan.' : 'Please submit your reflections before continuing.'}
       </p>
     )}
+    {step.number === 15 && !feedbackSubmitted && (
+      <p className="text-xs text-ink/60">
+        Please submit your rating before continuing.
+      </p>
+    )}
   </div>
 )}</nav></div><button onClick={signOutFromApp} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
 }
 
-function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd, declarationStatus = 'idle', isDeclarationSubmitted = false, onCheckDeclaration, reflectionSaved, setReflectionSaved, isSystemsCheckSubmitted, systemsCheckResponses, updateSystemsCheckResponse, canSubmitSystemsCheck, submitSystemsCheck }: {
+function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd, declarationStatus = 'idle', isDeclarationSubmitted = false, onCheckDeclaration, reflectionSaved, setReflectionSaved, isSystemsCheckSubmitted, systemsCheckResponses, updateSystemsCheckResponse, canSubmitSystemsCheck, submitSystemsCheck, feedbackRating, feedbackSubmitted, submitFeedback }: {
   step: typeof steps[number]
   employee: Employee
   t: typeof translations.en
@@ -701,6 +795,9 @@ function StepContent({ step, employee, t, language, videos, onAdvance, busy, err
   updateSystemsCheckResponse: (questionId: keyof SystemsCheckState, values: Partial<SystemsCheckResponse>) => void
   canSubmitSystemsCheck: boolean
   submitSystemsCheck: () => Promise<boolean>
+  feedbackRating: number
+  feedbackSubmitted: boolean
+  submitFeedback: () => Promise<boolean>
 }) {
   const [question, setQuestion] = useState('');
 	const [saved, setSaved] = useState(false);
@@ -710,6 +807,14 @@ function StepContent({ step, employee, t, language, videos, onAdvance, busy, err
 const [questions, setQuestions] = useState<{step_number:number;question:string}[]>([]);
 const [copied, setCopied] = useState(false);
 const [reflectionSaving, setReflectionSaving] = useState(false);
+const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
+const feedbackLabels: Record<number, string> = {
+  1: '1 out of 5',
+  2: '2 out of 5',
+  3: '3 out of 5',
+  4: '4 out of 5',
+  5: '5 out of 5',
+}
   const slackProfileGuidelineUrl = supabase?.storage.from('slack guideline').getPublicUrl('slack-photo-guideline.jpg').data.publicUrl
   const slackTutorialGuidelineUrl = supabase?.storage.from('slack guideline').getPublicUrl('slack-tutorial.gif').data.publicUrl
   const slackEmployeeData = employee ? (employee as Employee & { job_title?: string | null; manager_name?: string | null }) : null
@@ -777,6 +882,14 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
 
   setSaved(true);
 }
+  async function submitFeedbackRating() {
+    setFeedbackSubmitting(true)
+    try {
+      await submitFeedback()
+    } finally {
+      setFeedbackSubmitting(false)
+    }
+  }
   const reflectionQuestions = language === 'id'
     ? [
       'Hal apa yang ingin saya ingat dari hari pertama saya?',
@@ -964,6 +1077,38 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
     </Button>
     {error && <p className="mt-2 text-sm text-red-700" role="alert">{error}</p>}
     {isSystemsCheckSubmitted && <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Systems check submitted ✓</p>}
+  </>
+  if (step.number === 15) return <>
+    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Rate your AllAboard!@99 Experience</h1>
+    <div className="mt-7 flex gap-3">
+      {[1, 2, 3, 4, 5].map((value) => (
+        <Button
+          type="button"
+          key={value}
+          variant="secondary"
+          onClick={() => {
+            if (!feedbackSubmitted) setFeedbackRating(value)
+          }}
+          aria-label={feedbackLabels[value]}
+          aria-pressed={feedbackRating === value}
+          disabled={feedbackSubmitted}
+          className={feedbackRating >= value ? 'border-ink/70 !bg-ink/20 !text-ink' : '!text-ink/50'}
+        >
+          {feedbackRating >= value ? '★' : '☆'}
+        </Button>
+      ))}
+    </div>
+    <Button
+      type="button"
+      variant="secondary"
+      onClick={submitFeedbackRating}
+      disabled={feedbackSubmitting || busy || feedbackSubmitted || !feedbackRating}
+      className="mt-5"
+    >
+      Submit
+    </Button>
+    {error && <p className="mt-2 text-sm text-red-700" role="alert">{error}</p>}
+    {feedbackSubmitted && <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Thank you for your feedback.</p>}
   </>
 		  if (step.kind === 'video') {
 	    const configuredVideo = videos.find(v => v.step_number === step.number)

@@ -15,8 +15,7 @@ export const steps: Step[] = [
   { number: 12, kind: 'task', title: 'Check your onboarding schedule.', externalUrl: 'https://calendar.google.com/' },
   { number: 13, kind: 'task', title: '99ers Home', externalUrl: 'https://sites.google.com/99.co/99ers-home/about-the-team' },
   { number: 14, kind: 'reflection', title: 'Note to Self' },
-  { number: 15, kind: 'complete', title: "You're All Set" },
-  { number: 16, kind: 'thanks', title: 'Thank You', externalUrl: 'https://sites.google.com/99.co/99ers-home/onboarding-process#h.7ypgqvjuk7hv' }
+  { number: 15, kind: 'complete', title: 'Rate your AllAboard!@99 Experience' },
 ]
 export const reflectionQuestions = [
   'What are you hoping to learn during your first month?',
