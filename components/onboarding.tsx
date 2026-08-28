@@ -34,6 +34,11 @@ type SystemsCheckResponse = {
   issue: string
 }
 type SystemsCheckState = typeof INITIAL_SYSTEMS_CHECK_RESPONSES
+type SystemsCheckStorageRow = {
+  question_key: keyof SystemsCheckState
+  answer: SystemsCheckAnswer
+  issue: string | null
+}
 
 export default function Onboarding() {
   const [language, setLanguage] = useState<Language>('en'); const [employee, setEmployee] = useState<Employee | null>(null)
@@ -194,14 +199,16 @@ export default function Onboarding() {
   async function hydrate(person: Employee) {
     if (!supabase) { setReady(true); return }
 
-    const [progress, stepProgress, videoConfig] = await Promise.all([
+    const [progress, stepProgress, responses, videoConfig] = await Promise.all([
       supabase.from('onboarding_progress').select('current_step, completed_at').eq('employee_id', person.id).maybeSingle(),
       supabase.from('onboarding_step_progress').select('step_number').eq('employee_id', person.id).eq('completed', true),
+      supabase.from('onboarding_systems_check_responses').select('question_key,answer,issue').eq('employee_id', person.id),
       supabase.from('onboarding_videos').select('step_number,title,storage_path,is_active').in('step_number', [4,5,6,7]).eq('is_active', true).order('step_number')
     ])
 
     if (progress.error) console.error('Failed to load onboarding progress', progress.error)
     if (stepProgress.error) console.error('Failed to load completed steps', stepProgress.error)
+    if (responses.error) console.error('Failed to load systems check answers', responses.error)
     if (videoConfig.error) console.error('Failed to load videos', videoConfig.error)
 
     const resolvedCurrent = Math.min(progress.data?.current_step || 1, steps.length)
@@ -212,6 +219,20 @@ export default function Onboarding() {
       const hasSystemsCheckStepCompletion = stepProgress.data.some(x => x.step_number === SYSTEMS_CHECK_STEP_NUMBER)
       setSystemsCheckSubmitted(hasSystemsCheckStepCompletion && resolvedCurrent > SYSTEMS_CHECK_STEP_NUMBER)
       setDeclarationStatus(stepProgress.data.some(x => x.step_number === 9) ? 'found' : 'idle')
+    }
+
+    if (responses.data) {
+      const restoredResponses = { ...INITIAL_SYSTEMS_CHECK_RESPONSES }
+      responses.data.forEach((row: SystemsCheckStorageRow) => {
+        const key = row.question_key
+        if (key in restoredResponses && (row.answer === 'yes' || row.answer === 'no')) {
+          restoredResponses[key] = {
+            answer: row.answer,
+            issue: row.issue || '',
+          }
+        }
+      })
+      setSystemsCheckResponses(restoredResponses)
     }
 
     if (videoConfig.data) {
@@ -412,11 +433,47 @@ export default function Onboarding() {
     }))
   }
 
+  async function persistSystemsCheckResponses() {
+    if (!employee || !supabase) {
+      setError(t.saveError)
+      return false
+    }
+
+    const rows = SYSTEMS_CHECK_QUESTIONS.map((question) => {
+      const response = systemsCheckResponses[question.id]
+      return {
+        employee_id: employee.id,
+        step_number: SYSTEMS_CHECK_STEP_NUMBER,
+        question_key: question.id,
+        question_text: question.label,
+        answer: response.answer,
+        issue: response.answer === 'no' ? response.issue.trim() : null,
+      }
+    })
+
+    const { error } = await supabase
+      .from('onboarding_systems_check_responses')
+      .upsert(rows, {
+        onConflict: 'employee_id,question_key',
+      })
+
+    if (error) {
+      console.error('Failed to persist systems check responses', error)
+      setError(t.saveError)
+      return false
+    }
+
+    return true
+  }
+
   async function submitSystemsCheck() {
     if (!canSubmitSystemsCheck()) {
       setError('Please complete all systems check questions before continuing.')
       return false
     }
+
+    const savedResponses = await persistSystemsCheckResponses()
+    if (!savedResponses) return false
 
     const saved = await persistStep(SYSTEMS_CHECK_STEP_NUMBER)
     if (saved) {
