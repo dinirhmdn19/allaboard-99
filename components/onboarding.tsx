@@ -451,14 +451,46 @@ export default function Onboarding() {
       }
     })
 
-    const { error } = await supabase
+    const upsertResponse = await supabase
       .from('onboarding_systems_check_responses')
       .upsert(rows, {
         onConflict: 'employee_id,question_key',
       })
 
-    if (error) {
-      console.error('Failed to persist systems check responses', error)
+    if (!upsertResponse.error) {
+      return true
+    }
+
+    const legacyRows = SYSTEMS_CHECK_QUESTIONS.map((question) => {
+      const response = systemsCheckResponses[question.id]
+      return {
+        employee_id: employee.id,
+        step_number: SYSTEMS_CHECK_STEP_NUMBER,
+        question_key: question.id,
+        answer: response.answer,
+        issue: response.answer === 'no' ? response.issue.trim() : null,
+      }
+    })
+
+    const fallbackDelete = await supabase
+      .from('onboarding_systems_check_responses')
+      .delete()
+      .eq('employee_id', employee.id)
+      .eq('step_number', SYSTEMS_CHECK_STEP_NUMBER)
+
+    if (fallbackDelete.error) {
+      console.error('Failed to upsert systems check responses', upsertResponse.error)
+      console.error('Failed to clear old systems check responses', fallbackDelete.error)
+      setError(t.saveError)
+      return false
+    }
+
+    const { error: fallbackInsertError } = await supabase
+      .from('onboarding_systems_check_responses')
+      .insert(legacyRows)
+
+    if (fallbackInsertError) {
+      console.error('Failed to persist systems check responses (fallback insert)', fallbackInsertError)
       setError(t.saveError)
       return false
     }
@@ -884,7 +916,7 @@ const [reflectionSaving, setReflectionSaving] = useState(false);
   if (step.number === SYSTEMS_CHECK_STEP_NUMBER) return <>
     <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Systems check</h1>
     <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink/70">
-      Before you continue, make sure you have access to the tools you’ll use during your onboarding.
+      Make sure you have access to the tools you’ll use during your journey.
     </p>
     <div className="mt-7 space-y-5">
       {SYSTEMS_CHECK_QUESTIONS.map((question) => {
