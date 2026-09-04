@@ -83,6 +83,9 @@ const ENDING_PAGE_SECTIONS = [
   },
 ]
 
+const REFLECTION_STEP_NUMBER = steps.find((step) => step.kind === 'reflection')?.number ?? 14
+const RATING_STEP_NUMBER = steps.find((step) => step.kind === 'complete')?.number ?? 15
+
 function normalizeDepartmentName(value: string | null | undefined) {
   return (value || '')
     .toLowerCase()
@@ -105,8 +108,8 @@ function getDepartmentOnboarding(department: string | null) {
 
 function SocialButton({ href, label, icon }: { href: string; label: string; icon: string }) {
   return (
-    <ExternalLink href={href} className="h-11 px-3 text-sm">
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/80 text-xs font-bold text-ink">{icon}</span>
+    <ExternalLink href={href} className="inline-flex items-center gap-2 text-sm font-medium text-ink/80 transition hover:text-ink">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-ink/20 bg-white text-xs font-bold text-ink">{icon}</span>
       <span>{label}</span>
     </ExternalLink>
   )
@@ -114,7 +117,7 @@ function SocialButton({ href, label, icon }: { href: string; label: string; icon
 
 function StoreButton({ href, label }: { href: string; label: string }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-ink/5">
+    <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-ink/20 bg-white px-3 py-2 text-sm font-semibold text-ink/80 transition hover:border-ink/30 hover:text-ink">
       <span className="text-xs font-black uppercase">{label.includes('App') ? '' : '▶'}</span>
       <span>{label}</span>
       <span aria-hidden="true">↗</span>
@@ -126,53 +129,63 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
   const dept = getDepartmentOnboarding(employee.department)
 
   return (
-    <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8">
-      <header className="mb-6 flex items-center justify-between">
-        <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+    <main className="mx-auto min-h-screen max-w-5xl px-4 py-8 text-[#07183A] sm:px-8" style={{ backgroundColor: '#F4F7F9' }}>
+      <header className="mx-auto mb-8 flex w-full max-w-5xl items-center justify-between">
+        <p className="inline-flex rounded-full bg-white px-4 py-2 text-xl font-black tracking-tight shadow-sm">AllAboard!<span className="text-coral">@99</span></p>
         <LanguageToggle language={language} onChange={onChangeLanguage} />
       </header>
-      <section className="space-y-10 rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10">
-        <div>
-          <p className="font-semibold">Explore</p>
-          <h1 className="mt-1 text-4xl font-bold tracking-tight">Our Platforms!</h1>
+      <section className="mx-auto max-w-5xl space-y-10">
+        <div className="rounded-[2rem] border border-[#07183A]/10 bg-white px-6 py-10 shadow-sm sm:px-12">
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-[#07183A]/70">Onboarding complete</p>
+          <h1 className="mt-4 text-5xl font-black leading-tight text-[#07183A] sm:text-6xl lg:text-7xl">You&apos;re all set.</h1>
+          <div className="mt-6 max-w-3xl space-y-2 text-lg leading-relaxed text-[#07183A]/85 sm:text-xl">
+            <p>Your onboarding is complete.</p>
+            <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
+          </div>
         </div>
+
+        <section className="rounded-[2rem] border border-[#07183A]/10 bg-white px-6 py-10 sm:px-10">
+          <p className="text-2xl font-semibold text-[#07183A] sm:text-3xl">Explore what comes next</p>
+          <p className="mt-3 max-w-2xl text-base text-[#07183A]/75 sm:text-lg">A few resources you may want to explore as you settle in.</p>
+        </section>
+
         <div className="grid gap-4 lg:grid-cols-2">
           {ENDING_PAGE_SECTIONS.map((section) => (
-            <article key={section.title} className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
+            <article key={section.title} className="space-y-4 rounded-2xl border border-[#07183A]/10 bg-white p-5 shadow-sm">
               <div className="flex items-center gap-3">
                 <img src={section.logo} alt={section.title} className="h-10 w-20 rounded-md object-contain" />
-                <p className="text-xl font-semibold">{section.title}</p>
+                <p className="text-xl font-bold text-[#07183A]">{section.title}</p>
               </div>
-              {section.primary ? <ExternalLink href={section.primary.href} className="justify-center">{section.primary.label}</ExternalLink> : null}
-              {section.app ? <div className="grid gap-2 sm:grid-cols-2">{section.app.map((app) => <StoreButton key={`${section.title}-${app.label}`} href={app.href} label={app.label} />)}</div> : null}
-              {section.social ? <div className="grid gap-2 sm:grid-cols-2">{section.social.map((item) => <SocialButton key={item.label} href={item.href} label={item.label} icon={item.icon} />)}</div> : null}
+              {section.primary ? <ExternalLink href={section.primary.href} className="inline-flex rounded-xl border border-[#07183A]/20 bg-[#07183A] px-5 py-3 text-white shadow-sm transition hover:opacity-90">{section.primary.label}</ExternalLink> : null}
+              {section.app ? <div className="mt-3 grid gap-2 sm:grid-cols-2">{section.app.map((app) => <StoreButton key={`${section.title}-${app.label}`} href={app.href} label={app.label} />)}</div> : null}
+              {section.social ? <div className="mt-3 grid gap-2 sm:grid-cols-2">{section.social.map((item) => <SocialButton key={item.label} href={item.href} label={item.label} icon={item.icon} />)}</div> : null}
             </article>
           ))}
         </div>
-        <div className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
-          <h2 className="text-2xl font-bold">Begin your department onboarding.</h2>
+        <div className="space-y-4 rounded-2xl border border-[#07183A]/10 bg-white p-5">
+          <h2 className="text-xl font-semibold text-[#07183A]">Begin your department onboarding.</h2>
           <p className="text-sm text-ink/60">Department: {dept.title}</p>
           {dept.found ? (
             <>
-              <div className="rounded-2xl border border-ink/10 bg-ink/5 p-2 text-xs text-ink/60">If the embedded page cannot be loaded, use the button below.</div>
+              <div className="rounded-2xl border border-[#07183A]/10 bg-[#07183A]/5 p-2 text-xs text-[#07183A]/60">If the embedded page cannot be loaded, use the button below.</div>
               <iframe
                 title="Department onboarding"
                 src={dept.url as string}
-                className="h-64 w-full rounded-xl border border-ink/10"
+                className="h-64 w-full rounded-xl border border-[#07183A]/10"
                 loading="lazy"
               />
-              <ExternalLink href={dept.url as string}>Open Site in a New Tab</ExternalLink>
+              <ExternalLink href={dept.url as string} className="text-sm font-semibold">Open Site in a New Tab</ExternalLink>
             </>
           ) : (
-            <p className="rounded-xl bg-ink/5 p-4 text-sm text-ink">We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.</p>
+            <p className="rounded-xl bg-[#07183A]/5 p-4 text-sm text-[#07183A]">We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.</p>
           )}
         </div>
-        <div className="space-y-4 rounded-2xl border border-ink/10 bg-white p-5">
-          <h2 className="text-2xl font-bold">Ready to take your Online Meetings?</h2>
+        <div className="space-y-4 rounded-2xl border border-[#07183A]/10 bg-white p-5">
+          <h2 className="text-xl font-semibold text-[#07183A]">Ready to take your Online Meetings?</h2>
           <p className="text-sm text-ink/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
-          <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n">Pick and Download now</ExternalLink>
+          <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n" className="text-sm font-semibold">Pick and Download now</ExternalLink>
         </div>
-        <button onClick={onSignOut} className="text-xs font-semibold text-ink/60 underline">Sign out</button>
+        <button onClick={onSignOut} className="text-xs font-semibold text-[#07183A]/60 underline">Sign out</button>
       </section>
     </main>
   )
@@ -598,8 +611,8 @@ export default function Onboarding() {
 
   async function advance() {
     setError('')
-    if (current === 14 && !reflectionSaved) return
-    if (current === 15 && !feedbackSubmitted) return
+    if (current === REFLECTION_STEP_NUMBER && !reflectionSaved) return
+    if (current === RATING_STEP_NUMBER && !feedbackSubmitted) return
     const final = current === steps.length
     if (await persistStep(current, final)) setCurrent(Math.min(steps.length, current + 1))
   }
@@ -776,13 +789,6 @@ export default function Onboarding() {
   async function submitFeedbackAndFinish() {
     const submitted = await submitFeedback()
     if (!submitted) return false
-
-    const saved = await persistStep(15, true)
-    if (!saved) {
-      setFeedbackSubmitted(false)
-      return false
-    }
-
     return true
   }
 
@@ -925,31 +931,36 @@ export default function Onboarding() {
   if (onboardingCompletedAt) {
     return <EndingLandingPage employee={employee} language={language} onChangeLanguage={changeLanguage} onSignOut={signOutFromApp} />
   }
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} total={steps.length} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedbackAndFinish} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{current < steps.length && (
-  <div className="flex flex-col items-end gap-2">
-    <Button
-      onClick={advance}
-      disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === 14 && !reflectionSaved) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted)}
-    >
-      {(current === 10 || current === 11) ? t.next : step.optional ? t.skip : t.next}
-    </Button>
-    {isRequiredVideoStep && !isVideoCompleted && (
-      <p className="text-xs text-ink/60">
-        Watch the video until the end to continue.
-      </p>
-    )}
-    {step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted && (
-      <p className="text-xs text-ink/60">
-        Please submit the systems check before continuing.
-      </p>
-    )}
-    {step.number === 14 && !reflectionSaved && (
-      <p className="text-xs text-ink/60">
-        {language === 'id' ? 'Silakan kirim jawaban refleksi Anda sebelum melanjutkan.' : 'Please submit your reflections before continuing.'}
-      </p>
-    )}
-  </div>
-)}</nav></div><button onClick={signOutFromApp} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} total={steps.length} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedbackAndFinish} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{(current < steps.length || current === RATING_STEP_NUMBER) && (
+    <div className="flex flex-col items-end gap-2">
+      <Button
+        onClick={advance}
+        disabled={busy || (isRequiredVideoStep && !isVideoCompleted) || (step.number === 9 && !isDeclarationSubmitted) || (step.number === REFLECTION_STEP_NUMBER && !reflectionSaved) || (step.number === RATING_STEP_NUMBER && !feedbackSubmitted) || (step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted)}
+      >
+        {(current === 10 || current === 11) ? t.next : step.optional ? t.skip : t.next}
+      </Button>
+      {isRequiredVideoStep && !isVideoCompleted && (
+        <p className="text-xs text-ink/60">
+          Watch the video until the end to continue.
+        </p>
+      )}
+      {step.number === SYSTEMS_CHECK_STEP_NUMBER && !isSystemsCheckSubmitted && (
+        <p className="text-xs text-ink/60">
+          Please submit the systems check before continuing.
+        </p>
+      )}
+      {step.number === REFLECTION_STEP_NUMBER && !reflectionSaved && (
+        <p className="text-xs text-ink/60">
+          {language === 'id' ? 'Silakan kirim jawaban refleksi Anda sebelum melanjutkan.' : 'Please submit your reflections before continuing.'}
+        </p>
+      )}
+      {step.number === RATING_STEP_NUMBER && !feedbackSubmitted && (
+        <p className="text-xs text-ink/60">
+          Please submit your feedback before continuing.
+        </p>
+      )}
+    </div>
+  )}</nav></div><button onClick={signOutFromApp} className="mt-8 text-xs font-semibold text-ink/60 underline">{t.signOut}</button></section></main>
 }
 
 function StepContent({ step, employee, t, language, videos, onAdvance, busy, error, setError, isVideoCompleted, onVideoEnd, declarationStatus = 'idle', isDeclarationSubmitted = false, onCheckDeclaration, reflectionSaved, setReflectionSaved, isSystemsCheckSubmitted, systemsCheckResponses, updateSystemsCheckResponse, canSubmitSystemsCheck, submitSystemsCheck, feedbackRating, feedbackSubmitted, setFeedbackRating, submitFeedback }: {
@@ -1258,7 +1269,7 @@ const feedbackLabels: Record<number, string> = {
     {error && <p className="mt-2 text-sm text-red-700" role="alert">{error}</p>}
     {isSystemsCheckSubmitted && <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Systems check submitted ✓</p>}
   </>
-  if (step.number === 15) return <>
+  if (step.number === RATING_STEP_NUMBER) return <>
     <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Rate your AllAboard!@99 Experience</h1>
     <div className="mt-7 flex gap-3">
       {[1, 2, 3, 4, 5].map((value) => (
