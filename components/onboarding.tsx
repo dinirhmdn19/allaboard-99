@@ -48,7 +48,7 @@ type EndingSection = {
 const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: '99 GROUP',
-    logo: '/images/platforms/99-group-logo.svg',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99group-blue.png',
     socialTitle: 'Social Media:',
     socialLinks: [
       { label: 'Instagram', href: 'https://www.instagram.com/lifeat99group/', icon: '/images/platforms/instagram-icon.svg' },
@@ -58,7 +58,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   },
   {
     title: 'RUMAH123',
-    logo: '/images/platforms/rumah123-logo.svg',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/rumah123-blue.png',
     website: { label: 'Go to Rumah123 Site', href: 'http://rumah123.com/' },
     appCopy: "Download Rumah123's app on mobile.",
     appLinks: [
@@ -77,7 +77,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   },
   {
     title: '99.CO',
-    logo: '/images/platforms/99co-logo.svg',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99co-blue.png',
     website: { label: 'Go to 99.co Site', href: 'http://99.co/' },
     appCopy: "Download 99.co's app on mobile.",
     appLinks: [
@@ -107,7 +107,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   },
   {
     title: 'SRX',
-    logo: '/images/platforms/srx-logo.svg',
+    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/srx.png',
     website: { label: 'Go to SRX Site', href: 'https://www.srx.com.sg/' },
   },
 ]
@@ -157,9 +157,9 @@ function StoreButton({ href, label, name, icon }: { href: string; label: string;
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${name} ${label}`}
-      className="inline-flex h-12 min-w-[162px] items-center justify-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:bg-ink/5"
+      className="inline-flex h-14 w-[150px] max-w-[150px] items-center justify-center gap-2 rounded-2xl border border-ink/20 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:bg-ink/5 sm:h-14 sm:w-[156px] sm:max-w-[156px] sm:px-5 sm:text-base"
     >
-      <img src={icon} alt="" className="h-5 w-5" aria-hidden="true" />
+      <img src={icon} alt="" className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
       <span>{label}</span>
       <span className="text-xs" aria-hidden="true">↗︎</span>
     </a>
@@ -168,7 +168,7 @@ function StoreButton({ href, label, name, icon }: { href: string; label: string;
 
 function EndingPlatformIconLinks({ links }: { links: EndingSocialLink[] }) {
   return (
-    <div className="flex flex-wrap gap-2.5">
+    <div className="mx-auto flex max-w-lg justify-center gap-2.5 flex-wrap items-center">
       {links.map((item) => (
         <SocialButton key={`${item.label}-${item.href}`} href={item.href} label={item.label} icon={item.icon} />
       ))}
@@ -214,7 +214,7 @@ function EndingSectionLogo({ section }: { section: EndingSection }) {
     <img
       src={section.logo}
       alt={section.title}
-      className="mx-auto h-12 w-auto object-contain sm:h-14"
+      className="mx-auto block h-auto max-h-16 max-w-[160px] w-auto object-contain sm:max-h-16"
       loading="lazy"
     />
   )
