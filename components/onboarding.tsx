@@ -215,10 +215,9 @@ function SocialButton({ href, label, icon }: { href: string; label: string; icon
   return (
     <ExternalLink
       href={href}
-      aria-label={label}
-      title={label}
       className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#07183A]/15 bg-white text-[#07183A] transition hover:border-[#07183A]/30 hover:bg-white"
     >
+      <span className="sr-only">{label}</span>
       <SocialIcon name={icon} />
     </ExternalLink>
   )
