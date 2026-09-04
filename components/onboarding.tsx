@@ -157,11 +157,9 @@ function StoreButton({ href, label, name, icon }: { href: string; label: string;
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${name} ${label}`}
-      className="inline-flex h-14 w-[150px] max-w-[150px] items-center justify-center gap-2 rounded-2xl border border-ink/20 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:bg-ink/5 sm:h-14 sm:w-[156px] sm:max-w-[156px] sm:px-5 sm:text-base"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-ink/20 bg-white transition hover:bg-ink/5"
     >
       <img src={icon} alt="" className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
-      <span>{label}</span>
-      <span className="text-xs" aria-hidden="true">↗︎</span>
     </a>
   )
 }
