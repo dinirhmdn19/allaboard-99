@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="tTitle tDesc">
+  <title id="tTitle">TikTok</title>
+  <desc id="tDesc">TikTok logo icon</desc>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#000"/>
+  <path fill="#fff" d="M36 14h-4a13 13 0 0 0-2.2 13.2c-.8-.2-1.6-.3-2.5-.3a6.8 6.8 0 1 1 0 13.6v-4a2.8 2.8 0 1 0 2.8-2.8c.9 0 1.8.3 2.6.8V21h3.7c.6.1 1 .5 1 1v-8z"/>
+</svg>

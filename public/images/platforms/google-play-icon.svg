@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 96" role="img" aria-labelledby="gTitle gDesc">
+  <title id="gTitle">Google Play</title>
+  <desc id="gDesc">Google Play store icon</desc>
+  <rect x="3" y="3" width="334" height="90" rx="16" fill="#FFFFFF" stroke="#07183A"/>
+  <path d="M40 28l17 13-17 13z" fill="#0F9D58"/>
+  <path d="M40 28h0l6.8 12.3L40 52h9.8l10.6-11-10.6-13Z" fill="#F4B400"/>
+  <path d="M63.3 28H83L68.8 43.3 83 52h-20l-7.2-8.8L63.3 28Z" fill="#4285F4"/>
+  <text x="120" y="60" fill="#07183A" font-size="32" font-family="Arial, Helvetica, sans-serif" font-weight="700">Google Play</text>
+</svg>

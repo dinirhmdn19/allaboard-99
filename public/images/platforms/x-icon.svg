@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="xTitle xDesc">
+  <title id="xTitle">X</title>
+  <desc id="xDesc">X logo icon</desc>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#000"/>
+  <path fill="#fff" d="M19 16h6.6l6.3 9.2 6.2-9.2h6.2L31.7 28.4 41 48h-6.6l-7-10.4L20.8 48H14.6L25 35.7Z"/>
+</svg>

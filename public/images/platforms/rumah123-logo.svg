@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" role="img" aria-labelledby="rTitle rDesc">
+  <title id="rTitle">Rumah123</title>
+  <desc id="rDesc">Rumah123 logo</desc>
+  <rect x="1" y="1" width="358" height="98" rx="14" fill="#0057A8"/>
+  <text x="52%" y="58%" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" letter-spacing=".8">RUMAH123</text>
+  <rect x="24" y="22" width="52" height="56" rx="8" fill="#00AEEF"/>
+  <path d="M39 34h22v6H49v16h-6V40H33zM62 34h6v22h-6z" fill="#FFFFFF"/>
+</svg>

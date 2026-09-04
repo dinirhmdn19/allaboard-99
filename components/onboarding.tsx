@@ -30,10 +30,8 @@ const DEPARTMENT_MATCHES: Array<{ title: string; keywords: string[]; url: string
   { title: 'Bank and Media Sales', keywords: ['bank media', 'bank and media sales', 'media sales'], url: 'https://sites.google.com/99.co/99ers-home/about-the-team/indonesia/bank-media-sales' },
 ]
 
-type SocialIconName = 'instagram' | 'linkedin' | 'tiktok' | 'youtube' | 'x' | 'facebook'
-type StoreIconName = 'apple' | 'googlePlay'
-type EndingSocialLink = { label: string; href: string; icon: SocialIconName }
-type EndingStoreLink = { href: string; icon: StoreIconName; label: string; name: string }
+type EndingSocialLink = { label: string; href: string; icon: string }
+type EndingStoreLink = { href: string; icon: string; label: string; name: string }
 type EndingSocialGroup = { title: string; links: EndingSocialLink[] }
 
 type EndingSection = {
@@ -50,66 +48,66 @@ type EndingSection = {
 const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: '99 GROUP',
-    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99group-blue.png',
+    logo: '/images/platforms/99-group-logo.svg',
     socialTitle: 'Social Media:',
     socialLinks: [
-      { label: 'Instagram', href: 'https://www.instagram.com/lifeat99group/', icon: 'instagram' },
-      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/99-co', icon: 'linkedin' },
-      { label: 'TikTok', href: 'https://www.tiktok.com/@lifeat99group', icon: 'tiktok' },
+      { label: 'Instagram', href: 'https://www.instagram.com/lifeat99group/', icon: '/images/platforms/instagram-icon.svg' },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/99-co', icon: '/images/platforms/linkedin-icon.svg' },
+      { label: 'TikTok', href: 'https://www.tiktok.com/@lifeat99group', icon: '/images/platforms/tiktok-icon.svg' },
     ],
   },
   {
     title: 'RUMAH123',
-    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/rumah123-blue.png',
+    logo: '/images/platforms/rumah123-logo.svg',
     website: { label: 'Go to Rumah123 Site ↗︎', href: 'http://rumah123.com/' },
     appCopy: "Download Rumah123's app on mobile.",
     appLinks: [
-      { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/id/app/rumah123-com/id644854546', icon: 'apple' },
-      { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.rumah123', icon: 'googlePlay' },
+      { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/id/app/rumah123-com/id644854546', icon: '/images/platforms/apple-store-icon.svg' },
+      { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.rumah123', icon: '/images/platforms/google-play-icon.svg' },
     ],
     socialTitle: 'Social Media:',
     socialLinks: [
-      { label: 'Instagram', href: 'http://instagram.com/rumah123com/', icon: 'instagram' },
-      { label: 'LinkedIn', href: 'http://linkedin.com/company/rumah123', icon: 'linkedin' },
-      { label: 'TikTok', href: 'https://www.tiktok.com/@rumah123com', icon: 'tiktok' },
-      { label: 'YouTube', href: 'https://www.youtube.com/channel/UCQRpkeIymZhbrMHsvgRxf2Q?sub_confirmation=1', icon: 'youtube' },
-      { label: 'X', href: 'https://twitter.com/rumah123', icon: 'x' },
-      { label: 'Facebook', href: 'https://www.facebook.com/Rumah123/', icon: 'facebook' },
+      { label: 'Instagram', href: 'http://instagram.com/rumah123com/', icon: '/images/platforms/instagram-icon.svg' },
+      { label: 'LinkedIn', href: 'http://linkedin.com/company/rumah123', icon: '/images/platforms/linkedin-icon.svg' },
+      { label: 'TikTok', href: 'https://www.tiktok.com/@rumah123com', icon: '/images/platforms/tiktok-icon.svg' },
+      { label: 'YouTube', href: 'https://www.youtube.com/channel/UCQRpkeIymZhbrMHsvgRxf2Q?sub_confirmation=1', icon: '/images/platforms/youtube-icon.svg' },
+      { label: 'X', href: 'https://twitter.com/rumah123', icon: '/images/platforms/x-icon.svg' },
+      { label: 'Facebook', href: 'https://www.facebook.com/Rumah123/', icon: '/images/platforms/facebook-icon.svg' },
     ],
   },
   {
     title: '99.CO',
-    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99co-blue.png',
+    logo: '/images/platforms/99co-logo.svg',
     website: { label: 'Go to 99.co Site ↗︎', href: 'http://99.co/' },
     appCopy: "Download 99.co's app on mobile.",
     appLinks: [
-      { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/cn/app/99-co-indonesia/id787339517?l=en', icon: 'apple' },
-      { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.urbanindo.android&hl=en&gl=US', icon: 'googlePlay' },
+      { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/cn/app/99-co-indonesia/id787339517?l=en', icon: '/images/platforms/apple-store-icon.svg' },
+      { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.urbanindo.android&hl=en&gl=US', icon: '/images/platforms/google-play-icon.svg' },
     ],
     socialGroups: [
       {
         title: 'Indonesia',
         links: [
-          { label: 'Indonesia Instagram', href: 'https://www.instagram.com/99indonesia/', icon: 'instagram' },
-          { label: 'Indonesia YouTube', href: 'https://bit.ly/42N7VFz', icon: 'youtube' },
-          { label: 'Indonesia X', href: 'https://twitter.com/99dotco_IDN', icon: 'x' },
-          { label: 'Indonesia Facebook', href: 'https://www.facebook.com/99indonesia', icon: 'facebook' },
+          { label: 'Indonesia Instagram', href: 'https://www.instagram.com/99indonesia/', icon: '/images/platforms/instagram-icon.svg' },
+          { label: 'Indonesia YouTube', href: 'https://bit.ly/42N7VFz', icon: '/images/platforms/youtube-icon.svg' },
+          { label: 'Indonesia X', href: 'https://twitter.com/99dotco_IDN', icon: '/images/platforms/x-icon.svg' },
+          { label: 'Indonesia Facebook', href: 'https://www.facebook.com/99indonesia', icon: '/images/platforms/facebook-icon.svg' },
         ],
       },
       {
         title: 'Singapore',
         links: [
-          { label: 'Singapore Instagram', href: 'https://www.instagram.com/99.co', icon: 'instagram' },
-          { label: 'Singapore YouTube', href: 'https://www.youtube.com/channel/UCTFNrxXF9L1XZUlZNq07VKA', icon: 'youtube' },
-          { label: 'Singapore TikTok', href: 'https://www.tiktok.com/@99dotco', icon: 'tiktok' },
-          { label: 'Singapore Facebook', href: 'https://www.facebook.com/99dotco', icon: 'facebook' },
+          { label: 'Singapore Instagram', href: 'https://www.instagram.com/99.co', icon: '/images/platforms/instagram-icon.svg' },
+          { label: 'Singapore YouTube', href: 'https://www.youtube.com/channel/UCTFNrxXF9L1XZUlZNq07VKA', icon: '/images/platforms/youtube-icon.svg' },
+          { label: 'Singapore TikTok', href: 'https://www.tiktok.com/@99dotco', icon: '/images/platforms/tiktok-icon.svg' },
+          { label: 'Singapore Facebook', href: 'https://www.facebook.com/99dotco', icon: '/images/platforms/facebook-icon.svg' },
         ],
       },
     ],
   },
   {
     title: 'SRX',
-    logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/srx.png',
+    logo: '/images/platforms/srx-logo.svg',
     website: { label: 'Go to SRX Site ↗︎', href: 'https://www.srx.com.sg/' },
   },
 ]
@@ -137,103 +135,29 @@ function getDepartmentOnboarding(department: string | null) {
   }
 }
 
-function SocialIcon({ name }: { name: SocialIconName }) {
-  if (name === 'instagram') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-        <defs>
-          <radialGradient id="social-instagram" cx="30%" cy="107%" r="150%">
-            <stop offset="0%" stopColor="#feda75" />
-            <stop offset="50%" stopColor="#fa7e1e" />
-            <stop offset="75%" stopColor="#d62976" />
-            <stop offset="100%" stopColor="#4f5bd5" />
-          </radialGradient>
-        </defs>
-        <rect x="2.25" y="2.25" width="19.5" height="19.5" rx="5" fill="url(#social-instagram)" />
-        <rect x="6" y="6" width="12" height="12" rx="3" fill="none" stroke="#ffffff" strokeWidth="1.6" />
-        <circle cx="12" cy="12" r="3" fill="none" stroke="#ffffff" strokeWidth="1.6" />
-        <circle cx="16.5" cy="7.4" r="1" fill="#ffffff" />
-      </svg>
-    )
-  }
-  if (name === 'linkedin') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-        <rect width="24" height="24" rx="5" fill="#0A66C2" />
-        <rect x="5.2" y="8.6" width="2.2" height="9.8" fill="#ffffff" />
-        <rect x="9.6" y="13" width="2.2" height="5.4" fill="#ffffff" />
-        <circle cx="6.3" cy="6.5" r="1.2" fill="#ffffff" />
-        <path
-          fill="#ffffff"
-          d="M12 13c0-1 .9-1.9 2.1-1.9.2 0 .4.1.6.1v-1.9a3.3 3.3 0 0 0-2.2.8 2.5 2.5 0 0 0-2.3-.8v3.8z"
-        />
-      </svg>
-    )
-  }
-  if (name === 'tiktok') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-        <rect width="24" height="24" rx="5" fill="#000000" />
-        <path
-          fill="#ffffff"
-          d="M15.2 8v2.2a3.8 3.8 0 0 1-2-.8V14a4 4 0 1 1-4-4v2.2a1.8 1.8 0 1 0 1.8 1.8V8h2.2a3 3 0 0 0 2.8 2H15.2z"
-        />
-      </svg>
-    )
-  }
-  if (name === 'youtube') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-        <rect width="24" height="24" rx="5" fill="#ff0000" />
-        <path
-          fill="#ffffff"
-          d="M10.2 14.8V9.2l4.8 2.8-4.8 2.8zM17 7.4c-.6-.2-5.3-.4-5.3-.4s-4.7 0-5.3.4a2.4 2.4 0 0 0-1.8 2.1c-.3 1.4-.3 4.1-.3 4.5s0 3.1.3 4.5c.2.9 1 1.6 1.8 1.8.6.2 5.3.4 5.3.4s4.7 0 5.3-.4c.8-.2 1.6-.9 1.8-1.8.3-1.4.3-4.1.3-4.5s0-3.1-.3-4.5A2.4 2.4 0 0 0 17 7.4z"
-        />
-      </svg>
-    )
-  }
-  if (name === 'x') {
-    return (
-      <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-        <rect width="24" height="24" rx="5" fill="#000000" />
-        <path fill="#ffffff" d="M7.4 6h2.9l3.1 4.5 3.1-4.5H17l-4.5 6.5L18 18h-2.9l-3.3-4.7-3.3 4.7H7l4.4-6.2z" />
-      </svg>
-    )
-  }
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
-      <rect width="24" height="24" rx="5" fill="#1877F2" />
-      <path
-        fill="#ffffff"
-        d="M10.3 20V12h-2v-2.4h2V7.8c0-2.1 1.4-3.4 3.4-3.4 1 0 1.8.1 2.1.2V6.9h-1.4c-1 0-1.3.4-1.3 1.2V9.6H16L15.6 12h-2.4v8z"
-      />
-    </svg>
-  )
-}
-
-function SocialButton({ href, label, icon }: { href: string; label: string; icon: SocialIconName }) {
+function SocialButton({ href, label, icon }: { href: string; label: string; icon: string }) {
   return (
     <ExternalLink
       href={href}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#07183A]/15 bg-white text-[#07183A] transition hover:border-[#07183A]/30 hover:bg-white"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#07183A]/15 bg-white transition hover:border-[#07183A]/30 hover:bg-white"
+      aria-label={label}
     >
       <span className="sr-only">{label}</span>
-      <SocialIcon name={icon} />
+      <img src={icon} alt={label} className="h-5 w-5" />
     </ExternalLink>
   )
 }
 
-function StoreButton({ href, label, name, icon }: { href: string; label: string; name: string; icon: StoreIconName }) {
+function StoreButton({ href, label, name, icon }: { href: string; label: string; name: string; icon: string }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${name} ${label}`}
-      title={name}
-      className="inline-flex h-12 min-w-[136px] items-center justify-center gap-2 rounded-2xl border border-[#07183A]/15 bg-white px-4 py-3 text-sm font-semibold text-[#07183A] transition hover:border-[#07183A]/30"
+      className="inline-flex h-12 min-w-[162px] items-center justify-center gap-2 rounded-2xl border border-[#07183A]/15 bg-white px-4 py-3 text-sm font-semibold text-[#07183A] transition hover:border-[#07183A]/30"
     >
-      <span className="text-lg leading-none">{icon === 'apple' ? '' : '▶'}</span>
+      <img src={icon} alt="" className="h-5 w-5" aria-hidden="true" />
       <span>{label}</span>
       <span className="text-xs" aria-hidden="true">↗︎</span>
     </a>
@@ -250,9 +174,9 @@ function EndingPlatformIconLinks({ links }: { links: EndingSocialLink[] }) {
   )
 }
 
-function EndingLandingSection({ section, centered }: { section: EndingSection; centered?: boolean }) {
+function EndingLandingSection({ section }: { section: EndingSection }) {
   return (
-    <article className={`space-y-5 ${centered ? 'mx-auto w-full max-w-sm text-center' : ''}`}>
+    <article className="mx-auto w-full max-w-2xl space-y-5 text-center">
       <EndingSectionLogo section={section} />
       {section.website ? (
         <ExternalLink
@@ -301,71 +225,69 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
   const dept = getDepartmentOnboarding(employee.department)
 
   return (
-    <main className="min-h-screen bg-[#F4F7F9] text-[#07183A]">
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 pb-12 pt-8 sm:px-10 lg:px-12">
-        <header className="mb-8 flex w-full items-center justify-between">
-          <p className="inline-flex rounded-full bg-white px-4 py-2 text-xl font-black tracking-tight shadow-sm">AllAboard!<span className="text-coral">@99</span></p>
-          <LanguageToggle language={language} onChange={onChangeLanguage} />
-        </header>
+    <main className="min-h-screen bg-[#07183A] text-[#07183A]">
+      <div className="mx-auto flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex w-full max-w-5xl flex-col rounded-[2rem] bg-white px-4 py-10 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.35)] sm:px-10">
+          <header className="mb-8 flex w-full items-center justify-between">
+            <p className="inline-flex rounded-full bg-[#F4F7F9] px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+            <LanguageToggle language={language} onChange={onChangeLanguage} />
+          </header>
 
-        <section className="space-y-6 pb-4">
-          <p className="text-xs font-black uppercase tracking-[.2em] text-[#07183A]/60">Onboarding is complete</p>
-          <h1 className="text-4xl font-black leading-tight text-[#07183A] sm:text-6xl">You&apos;re all set.</h1>
-          <div className="max-w-3xl space-y-2 text-base text-[#07183A]/85 sm:text-lg">
-            <p>Your onboarding is complete.</p>
-            <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
-          </div>
-        </section>
+          <section className="space-y-6 pb-4">
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#07183A]/60">Onboarding is complete</p>
+            <h1 className="text-4xl font-black leading-tight text-[#07183A] sm:text-6xl">You&apos;re all set.</h1>
+            <div className="max-w-3xl space-y-2 text-base text-[#07183A]/85 sm:text-lg">
+              <p>Your onboarding is complete.</p>
+              <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
+            </div>
+          </section>
 
-        <section className="mt-12 space-y-2">
-          <h2 className="text-3xl font-black text-[#07183A] sm:text-4xl">Explore Our Platforms!</h2>
-          <p className="max-w-2xl text-base text-[#07183A]/75 sm:text-lg">
-            Scroll through our platforms via websites, connect with us on social media, or download our mobile apps!
-          </p>
-        </section>
+          <section className="mt-12 space-y-2 text-center">
+            <h2 className="text-3xl font-black text-[#07183A] sm:text-4xl">Explore Our Platforms!</h2>
+            <p className="mx-auto max-w-2xl text-base text-[#07183A]/75 sm:text-lg">
+              Scroll through our platforms via websites, connect with us on social media, or download our mobile apps!
+            </p>
+          </section>
 
-        <section className="mt-10 space-y-10">
-          <EndingLandingSection section={ENDING_PAGE_SECTIONS[0]} centered />
-
-          <div className="grid gap-10 lg:grid-cols-3">
-            {ENDING_PAGE_SECTIONS.slice(1).map((section) => (
+          <section className="mt-10 space-y-10">
+            {ENDING_PAGE_SECTIONS.map((section) => (
               <EndingLandingSection key={section.title} section={section} />
             ))}
-          </div>
-        </section>
+          </section>
 
-        <section className="mt-14 space-y-3">
-          <h2 className="text-2xl font-semibold text-[#07183A]">Begin your department onboarding.</h2>
-          <p className="text-sm text-[#07183A]/65">Department: {dept.title}</p>
-          {dept.found ? (
-            <>
-              <p className="text-sm text-[#07183A]/70">If the embedded page cannot be loaded, use the button below.</p>
-              <iframe
-                title="Department onboarding"
-                src={dept.url as string}
-                className="mt-4 h-64 w-full rounded-xl border border-[#07183A]/15"
-                loading="lazy"
-              />
-              <ExternalLink href={dept.url as string} className="text-sm font-semibold">Open Site in a New Tab</ExternalLink>
-            </>
-          ) : (
-            <p className="rounded-xl bg-[#07183A]/5 p-4 text-sm text-[#07183A]">
-              We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.
-            </p>
-          )}
-        </section>
+          <section className="mt-14 space-y-3">
+            <h2 className="text-2xl font-semibold text-[#07183A]">Begin your department onboarding.</h2>
+            <p className="text-sm text-[#07183A]/65">Department: {dept.title}</p>
+            {dept.found ? (
+              <>
+                <p className="text-sm text-[#07183A]/70">If the embedded page cannot be loaded, use the button below.</p>
+                <iframe
+                  title="Department onboarding"
+                  src={dept.url as string}
+                  className="mt-4 h-64 w-full rounded-xl border border-[#07183A]/15"
+                  loading="lazy"
+                />
+                <ExternalLink href={dept.url as string} className="text-sm font-semibold">Open Site in a New Tab</ExternalLink>
+              </>
+            ) : (
+              <p className="rounded-xl bg-[#07183A]/5 p-4 text-sm text-[#07183A]">
+                We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.
+              </p>
+            )}
+          </section>
 
-        <section className="mt-10 space-y-2">
-          <h2 className="text-2xl font-semibold text-[#07183A]">Ready to take your Online Meetings.</h2>
-          <p className="text-sm text-[#07183A]/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
-          <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n" className="text-sm font-semibold">
-            Pick and Download now
-          </ExternalLink>
-        </section>
+          <section className="mt-10 space-y-2">
+            <h2 className="text-2xl font-semibold text-[#07183A]">Ready to take your Online Meetings.</h2>
+            <p className="text-sm text-[#07183A]/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
+            <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n" className="text-sm font-semibold">
+              Pick and Download now
+            </ExternalLink>
+          </section>
 
-        <button onClick={onSignOut} className="mt-auto pt-12 text-xs font-semibold text-[#07183A]/65 underline underline-offset-4">
-          Sign out
-        </button>
+          <button onClick={onSignOut} className="mt-10 text-xs font-semibold text-[#07183A]/65 underline underline-offset-4">
+            Sign out
+          </button>
+        </div>
       </div>
     </main>
   )

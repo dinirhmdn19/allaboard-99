@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" role="img" aria-labelledby="nTitle nDesc">
+  <title id="nTitle">99.co</title>
+  <desc id="nDesc">99.co logo</desc>
+  <rect x="1" y="1" width="358" height="98" rx="14" fill="#0F172A"/>
+  <text x="50%" y="58%" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700">99</text>
+  <circle cx="226" cy="50" r="18" fill="#F36A21"/>
+  <text x="233" y="58" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">.</text>
+  <text x="251" y="58" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">co</text>
+</svg>
