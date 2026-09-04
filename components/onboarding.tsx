@@ -59,7 +59,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: 'RUMAH123',
     logo: '/images/platforms/rumah123-logo.svg',
-    website: { label: 'Go to Rumah123 Site ↗︎', href: 'http://rumah123.com/' },
+    website: { label: 'Go to Rumah123 Site', href: 'http://rumah123.com/' },
     appCopy: "Download Rumah123's app on mobile.",
     appLinks: [
       { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/id/app/rumah123-com/id644854546', icon: '/images/platforms/apple-store-icon.svg' },
@@ -78,7 +78,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: '99.CO',
     logo: '/images/platforms/99co-logo.svg',
-    website: { label: 'Go to 99.co Site ↗︎', href: 'http://99.co/' },
+    website: { label: 'Go to 99.co Site', href: 'http://99.co/' },
     appCopy: "Download 99.co's app on mobile.",
     appLinks: [
       { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/cn/app/99-co-indonesia/id787339517?l=en', icon: '/images/platforms/apple-store-icon.svg' },
@@ -108,7 +108,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: 'SRX',
     logo: '/images/platforms/srx-logo.svg',
-    website: { label: 'Go to SRX Site ↗︎', href: 'https://www.srx.com.sg/' },
+    website: { label: 'Go to SRX Site', href: 'https://www.srx.com.sg/' },
   },
 ]
 
