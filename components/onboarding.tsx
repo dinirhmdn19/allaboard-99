@@ -137,14 +137,16 @@ function getDepartmentOnboarding(department: string | null) {
 
 function SocialButton({ href, label, icon }: { href: string; label: string; icon: string }) {
   return (
-    <ExternalLink
+    <a
       href={href}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#07183A]/15 bg-white transition hover:border-[#07183A]/30 hover:bg-white"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/15 bg-white transition hover:border-ink/30 hover:bg-white"
       aria-label={label}
     >
       <span className="sr-only">{label}</span>
       <img src={icon} alt={label} className="h-5 w-5" />
-    </ExternalLink>
+    </a>
   )
 }
 
@@ -155,7 +157,7 @@ function StoreButton({ href, label, name, icon }: { href: string; label: string;
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${name} ${label}`}
-      className="inline-flex h-12 min-w-[162px] items-center justify-center gap-2 rounded-2xl border border-[#07183A]/15 bg-white px-4 py-3 text-sm font-semibold text-[#07183A] transition hover:border-[#07183A]/30"
+      className="inline-flex h-12 min-w-[162px] items-center justify-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-3 text-sm font-semibold text-ink transition hover:bg-ink/5"
     >
       <img src={icon} alt="" className="h-5 w-5" aria-hidden="true" />
       <span>{label}</span>
@@ -176,31 +178,28 @@ function EndingPlatformIconLinks({ links }: { links: EndingSocialLink[] }) {
 
 function EndingLandingSection({ section }: { section: EndingSection }) {
   return (
-    <article className="mx-auto w-full max-w-2xl space-y-5 text-center">
+    <article className="mx-auto w-full max-w-2xl space-y-5 rounded-2xl border border-ink/10 bg-white p-5 text-center">
       <EndingSectionLogo section={section} />
       {section.website ? (
-        <ExternalLink
-          href={section.website.href}
-          className="inline-flex rounded-full border border-[#07183A]/20 px-4 py-2 text-sm font-semibold text-[#07183A] transition hover:border-[#07183A]/35"
-        >
+        <ExternalLink href={section.website.href}>
           {section.website.label}
         </ExternalLink>
       ) : null}
-      {section.appCopy ? <p className="text-sm text-[#07183A]/75">{section.appCopy}</p> : null}
+      {section.appCopy ? <p className="text-base text-ink/70">{section.appCopy}</p> : null}
       {section.appLinks ? (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap justify-center gap-2.5">
           {section.appLinks.map((app) => (
             <StoreButton key={`${section.title}-${app.label}`} href={app.href} label={app.label} name={app.name} icon={app.icon} />
           ))}
         </div>
       ) : null}
-      {section.socialTitle ? <p className="text-sm font-semibold text-[#07183A]/85">{section.socialTitle}</p> : null}
+      {section.socialTitle ? <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{section.socialTitle}</p> : null}
       {section.socialLinks ? <EndingPlatformIconLinks links={section.socialLinks} /> : null}
       {section.socialGroups ? (
         <div className="space-y-4">
           {section.socialGroups.map((group) => (
             <div key={`${section.title}-${group.title}`} className="space-y-2.5">
-              <p className="text-sm font-semibold text-[#07183A]">{group.title}</p>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{group.title}</p>
               <EndingPlatformIconLinks links={group.links} />
             </div>
           ))}
@@ -215,7 +214,7 @@ function EndingSectionLogo({ section }: { section: EndingSection }) {
     <img
       src={section.logo}
       alt={section.title}
-      className="h-12 w-auto object-contain sm:h-14"
+      className="mx-auto h-12 w-auto object-contain sm:h-14"
       loading="lazy"
     />
   )
@@ -225,70 +224,73 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
   const dept = getDepartmentOnboarding(employee.department)
 
   return (
-    <main className="min-h-screen bg-[#07183A] text-[#07183A]">
-      <div className="mx-auto flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex w-full max-w-5xl flex-col rounded-[2rem] bg-white px-4 py-10 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.35)] sm:px-10">
-          <header className="mb-8 flex w-full items-center justify-between">
-            <p className="inline-flex rounded-full bg-[#F4F7F9] px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
-            <LanguageToggle language={language} onChange={onChangeLanguage} />
-          </header>
+    <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8">
+      <header className="mb-6 flex items-center justify-between">
+        <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+        <LanguageToggle language={language} onChange={onChangeLanguage} />
+      </header>
 
-          <section className="space-y-6 pb-4">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#07183A]/60">Onboarding is complete</p>
-            <h1 className="text-4xl font-black leading-tight text-[#07183A] sm:text-6xl">You&apos;re all set.</h1>
-            <div className="max-w-3xl space-y-2 text-base text-[#07183A]/85 sm:text-lg">
-              <p>Your onboarding is complete.</p>
-              <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
-            </div>
-          </section>
+      <section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10">
+        <div className="mb-9">
+          <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">Onboarding is complete</p>
+        </div>
 
-          <section className="mt-12 space-y-2 text-center">
-            <h2 className="text-3xl font-black text-[#07183A] sm:text-4xl">Explore Our Platforms!</h2>
-            <p className="mx-auto max-w-2xl text-base text-[#07183A]/75 sm:text-lg">
+        <section className="mb-12 space-y-2">
+          <h1 className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re all set.</h1>
+          <div className="mt-4 max-w-3xl text-base leading-relaxed text-ink/70 sm:text-lg">
+            <p>Your onboarding is complete.</p>
+            <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
+          </div>
+        </section>
+
+        <section className="space-y-10">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-ink">Explore Our Platforms!</h2>
+            <p className="max-w-2xl text-base leading-relaxed text-ink/70">
               Scroll through our platforms via websites, connect with us on social media, or download our mobile apps!
             </p>
-          </section>
+          </div>
 
-          <section className="mt-10 space-y-10">
+          <div className="space-y-10">
             {ENDING_PAGE_SECTIONS.map((section) => (
               <EndingLandingSection key={section.title} section={section} />
             ))}
-          </section>
+          </div>
+        </section>
 
-          <section className="mt-14 space-y-3">
-            <h2 className="text-2xl font-semibold text-[#07183A]">Begin your department onboarding.</h2>
-            <p className="text-sm text-[#07183A]/65">Department: {dept.title}</p>
-            {dept.found ? (
-              <>
-                <p className="text-sm text-[#07183A]/70">If the embedded page cannot be loaded, use the button below.</p>
-                <iframe
-                  title="Department onboarding"
-                  src={dept.url as string}
-                  className="mt-4 h-64 w-full rounded-xl border border-[#07183A]/15"
-                  loading="lazy"
-                />
-                <ExternalLink href={dept.url as string} className="text-sm font-semibold">Open Site in a New Tab</ExternalLink>
-              </>
-            ) : (
-              <p className="rounded-xl bg-[#07183A]/5 p-4 text-sm text-[#07183A]">
-                We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.
-              </p>
-            )}
-          </section>
+        <section className="mt-12 space-y-3">
+          <h2 className="text-2xl font-bold text-ink">Begin your department onboarding.</h2>
+          <p className="max-w-2xl text-base leading-relaxed text-ink/70">Department: {dept.title}</p>
+          {dept.found ? (
+            <>
+              <p className="max-w-2xl text-base leading-relaxed text-ink/70">If the embedded page cannot be loaded, use the button below.</p>
+              <iframe
+                title="Department onboarding"
+                src={dept.url as string}
+                className="mt-4 h-64 w-full rounded-xl border border-ink/15"
+                loading="lazy"
+              />
+              <ExternalLink href={dept.url as string}>Open Site in a New Tab</ExternalLink>
+            </>
+          ) : (
+            <p className="rounded-xl bg-ink/5 p-4 text-sm text-ink">
+              We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.
+            </p>
+          )}
+        </section>
 
-          <section className="mt-10 space-y-2">
-            <h2 className="text-2xl font-semibold text-[#07183A]">Ready to take your Online Meetings.</h2>
-            <p className="text-sm text-[#07183A]/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
-            <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n" className="text-sm font-semibold">
-              Pick and Download now
-            </ExternalLink>
-          </section>
+        <section className="mt-12 space-y-3">
+          <h2 className="text-2xl font-bold text-ink">Ready to take your Online Meetings?</h2>
+          <p className="max-w-2xl text-base leading-relaxed text-ink/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
+          <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n">
+            Pick and Download now
+          </ExternalLink>
+        </section>
 
-          <button onClick={onSignOut} className="mt-10 text-xs font-semibold text-[#07183A]/65 underline underline-offset-4">
-            Sign out
-          </button>
-        </div>
-      </div>
+        <button onClick={onSignOut} className="mt-10 text-xs font-semibold text-ink/60 underline">
+          Sign out
+        </button>
+      </section>
     </main>
   )
 }
