@@ -151,15 +151,27 @@ function SocialButton({ href, label, icon }: { href: string; label: string; icon
 }
 
 function StoreButton({ href, label, name, icon }: { href: string; label: string; name: string; icon: string }) {
+  const isStoreBadge =
+    icon.includes('/app-store.png') || icon.includes('/google-play.png')
+
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${name} ${label}`}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-ink/20 bg-white transition hover:bg-ink/5"
+      className={
+        isStoreBadge
+          ? 'inline-flex h-11 items-center justify-center rounded-2xl border border-ink/20 bg-white px-2 transition hover:bg-ink/5 sm:px-3'
+          : 'inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-ink/20 bg-white transition hover:bg-ink/5'
+      }
     >
-      <img src={icon} alt="" className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
+      <img
+        src={icon}
+        alt=""
+        className={isStoreBadge ? 'h-6 w-auto object-contain sm:h-7' : 'h-6 w-6 sm:h-7 sm:w-7'}
+        aria-hidden="true"
+      />
     </a>
   )
 }
