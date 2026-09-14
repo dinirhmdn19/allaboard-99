@@ -32,15 +32,15 @@ const DEPARTMENT_MATCHES: Array<{ title: string; keywords: string[]; url: string
 
 type EndingSocialLink = { label: string; href: string; icon: string }
 type EndingStoreLink = { href: string; icon: string; label: string; name: string }
-type EndingSocialGroup = { title: string; links: EndingSocialLink[] }
+type EndingSocialGroup = { titleKey?: 'indonesia' | 'singapore'; title?: string; links: EndingSocialLink[] }
 
 type EndingSection = {
   title: string
   logo: string
-  website?: { label: string; href: string }
-  appCopy?: string
+  website?: { labelKey?: 'rumah123' | 'ninetyNineCo' | 'srx'; label?: string; href: string }
+  appCopyKey?: 'rumah123' | 'ninetyNineCo'
   appLinks?: EndingStoreLink[]
-  socialTitle?: string
+  socialTitleKey?: 'socialMedia'
   socialLinks?: EndingSocialLink[]
   socialGroups?: EndingSocialGroup[]
 }
@@ -49,7 +49,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: '99 GROUP',
     logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99group-blue.png',
-    socialTitle: 'Social Media:',
+    socialTitleKey: 'socialMedia',
     socialLinks: [
       { label: 'Instagram', href: 'https://www.instagram.com/lifeat99group/', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/instagram.png' },
       { label: 'LinkedIn', href: 'https://www.linkedin.com/company/99-co', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/linkedin.png' },
@@ -59,13 +59,13 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: 'RUMAH123',
     logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/rumah123-blue.png',
-    website: { label: 'Go to Rumah123 Site', href: 'http://rumah123.com/' },
-    appCopy: "Download Rumah123's app on mobile.",
+    website: { labelKey: 'rumah123', href: 'http://rumah123.com/' },
+    appCopyKey: 'rumah123',
     appLinks: [
       { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/id/app/rumah123-com/id644854546', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/app-store.png' },
       { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.rumah123', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/google-play.png' },
     ],
-    socialTitle: 'Social Media:',
+    socialTitleKey: 'socialMedia',
     socialLinks: [
       { label: 'Instagram', href: 'http://instagram.com/rumah123com/', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/instagram.png' },
       { label: 'LinkedIn', href: 'http://linkedin.com/company/rumah123', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/linkedin.png' },
@@ -78,15 +78,15 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: '99.CO',
     logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/99co-blue.png',
-    website: { label: 'Go to 99.co Site', href: 'http://99.co/' },
-    appCopy: "Download 99.co's app on mobile.",
+    website: { labelKey: 'ninetyNineCo', href: 'http://99.co/' },
+    appCopyKey: 'ninetyNineCo',
     appLinks: [
       { name: 'Apple App Store', label: 'App Store', href: 'https://apps.apple.com/cn/app/99-co-indonesia/id787339517?l=en', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/app-store.png' },
       { name: 'Google Play', label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.urbanindo.android&hl=en&gl=US', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/google-play.png' },
     ],
     socialGroups: [
       {
-        title: 'Indonesia',
+        titleKey: 'indonesia',
         links: [
           { label: 'Indonesia Instagram', href: 'https://www.instagram.com/99indonesia/', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/instagram.png' },
           { label: 'Indonesia YouTube', href: 'https://bit.ly/42N7VFz', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/youtube.png' },
@@ -95,7 +95,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
         ],
       },
       {
-        title: 'Singapore',
+        titleKey: 'singapore',
         links: [
           { label: 'Singapore Instagram', href: 'https://www.instagram.com/99.co', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/instagram.png' },
           { label: 'Singapore YouTube', href: 'https://www.youtube.com/channel/UCTFNrxXF9L1XZUlZNq07VKA', icon: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/youtube.png' },
@@ -108,7 +108,7 @@ const ENDING_PAGE_SECTIONS: EndingSection[] = [
   {
     title: 'SRX',
     logo: 'https://jjxkerecburodqgabafh.supabase.co/storage/v1/object/public/logos/srx.png',
-    website: { label: 'Go to SRX Site', href: 'https://www.srx.com.sg/' },
+    website: { labelKey: 'srx', href: 'https://www.srx.com.sg/' },
   },
 ]
 
@@ -134,6 +134,9 @@ function getDepartmentOnboarding(department: string | null) {
     found: Boolean(found),
   }
 }
+
+const renderTemplate = (template: string, vars: Record<string, string>) =>
+  Object.entries(vars).reduce((value, [key, replacement]) => value.replaceAll(`{{${key}}}`, replacement), template)
 
 function SocialButton({ href, label, icon }: { href: string; label: string; icon: string }) {
   return (
@@ -186,16 +189,20 @@ function EndingPlatformIconLinks({ links }: { links: EndingSocialLink[] }) {
   )
 }
 
-function EndingLandingSection({ section }: { section: EndingSection }) {
+function EndingLandingSection({ section, t }: { section: EndingSection; t: typeof translations.en }) {
+  const websiteLabel = section.website?.label || (section.website?.labelKey ? t.ending.websiteLabel[section.website.labelKey] : '')
+  const appCopy = section.appCopyKey ? t.ending.appCopy[section.appCopyKey] : ''
+  const sectionSocialTitle = section.socialTitleKey ? t.ending.socialTitle : null
+
   return (
     <article className="mx-auto w-full max-w-2xl space-y-5 rounded-2xl border border-ink/10 bg-white p-5 text-center">
       <EndingSectionLogo section={section} />
       {section.website ? (
         <ExternalLink href={section.website.href}>
-          {section.website.label}
+          {websiteLabel}
         </ExternalLink>
       ) : null}
-      {section.appCopy ? <p className="text-base text-ink/70">{section.appCopy}</p> : null}
+      {appCopy ? <p className="text-base text-ink/70">{appCopy}</p> : null}
       {section.appLinks ? (
         <div className="flex flex-wrap justify-center gap-2.5">
           {section.appLinks.map((app) => (
@@ -203,13 +210,13 @@ function EndingLandingSection({ section }: { section: EndingSection }) {
           ))}
         </div>
       ) : null}
-      {section.socialTitle ? <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{section.socialTitle}</p> : null}
+      {sectionSocialTitle ? <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{sectionSocialTitle}</p> : null}
       {section.socialLinks ? <EndingPlatformIconLinks links={section.socialLinks} /> : null}
       {section.socialGroups ? (
         <div className="space-y-4">
           {section.socialGroups.map((group) => (
             <div key={`${section.title}-${group.title}`} className="space-y-2.5">
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{group.title}</p>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-ink/60">{group.titleKey ? t.ending.country[group.titleKey] : group.title}</p>
               <EndingPlatformIconLinks links={group.links} />
             </div>
           ))}
@@ -230,8 +237,13 @@ function EndingSectionLogo({ section }: { section: EndingSection }) {
   )
 }
 
+function getLocalizedStepTitle(step: typeof steps[number], t: typeof translations.en) {
+  return (step.titleKey ? t.stepTitles[step.titleKey] : null) || step.title
+}
+
 function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: { employee: Employee; onSignOut: () => void; language: Language; onChangeLanguage: (language: Language) => void }) {
   const dept = getDepartmentOnboarding(employee.department)
+  const t = translations[language]
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8">
@@ -242,56 +254,56 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
 
       <section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10">
         <div className="mb-9">
-          <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">Onboarding is complete</p>
+          <p className="text-sm font-bold uppercase tracking-[.16em] text-leaf">{t.ending.onboardingIsCompleteLabel}</p>
         </div>
 
         <section className="mb-12 space-y-2">
-          <h1 className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">You&apos;re all set.</h1>
+          <h1 className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">{t.ending.allSetTitle}</h1>
           <div className="mt-4 max-w-3xl text-base leading-relaxed text-ink/70 sm:text-lg">
-            <p>Your onboarding is complete.</p>
-            <p>Now you&apos;re ready for your #YourWayHome journey at the 99 Group.</p>
+            <p>{t.ending.completeSentence}</p>
+            <p>{t.ending.readyJourneyHeadline}</p>
           </div>
         </section>
 
         <section className="space-y-10">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-ink">Explore Our Platforms!</h2>
+            <h2 className="text-2xl font-bold text-ink">{t.ending.explorePlatformsTitle}</h2>
             <p className="max-w-2xl text-base leading-relaxed text-ink/70">
-              Scroll through our platforms via websites, connect with us on social media, or download our mobile apps!
+              {t.ending.explorePlatformsDescription}
             </p>
           </div>
 
           <div className="space-y-10">
             {ENDING_PAGE_SECTIONS.map((section) => (
-              <EndingLandingSection key={section.title} section={section} />
+              <EndingLandingSection key={section.title} section={section} t={t} />
             ))}
           </div>
         </section>
 
         <section className="mt-12 space-y-3">
-          <h2 className="text-2xl font-bold text-ink">Begin your department onboarding.</h2>
-          <p className="max-w-2xl text-base leading-relaxed text-ink/70">Department: {dept.title}</p>
+          <h2 className="text-2xl font-bold text-ink">{t.ending.beginDepartmentOnboarding}</h2>
+          <p className="max-w-2xl text-base leading-relaxed text-ink/70">{t.ending.departmentLabel} {dept.title}</p>
           {dept.found ? (
             <>
-              <ExternalLink href={dept.url as string} className="mt-3 inline-flex">Open Site in a New Tab</ExternalLink>
+              <ExternalLink href={dept.url as string} className="mt-3 inline-flex">{t.action.openInNewTab}</ExternalLink>
             </>
           ) : (
             <p className="rounded-xl bg-ink/5 p-4 text-sm text-ink">
-              We couldn&apos;t match an exact department onboarding page. Use the links above to open the general 99ers onboarding hub.
+              {t.ending.departmentNotFound}
             </p>
           )}
         </section>
 
         <section className="mt-12 space-y-3">
           <h2 className="text-2xl font-bold text-ink">Ready to take your Online Meetings?</h2>
-          <p className="max-w-2xl text-base leading-relaxed text-ink/70">Use our virtual backgrounds to keep your meetings on-brand.</p>
+          <p className="max-w-2xl text-base leading-relaxed text-ink/70">{t.ending.onlineMeetingsDescription}</p>
           <ExternalLink href="https://sites.google.com/99.co/99ers-home/brand-assets-template#h.rrq9ebn8zv2n">
-            Pick and Download now
+            {t.ending.onlineMeetingsAction}
           </ExternalLink>
         </section>
 
         <button onClick={onSignOut} className="mt-10 text-xs font-semibold text-ink/60 underline">
-          Sign out
+          {t.ending.signOut}
         </button>
       </section>
     </main>
@@ -350,8 +362,8 @@ export default function Onboarding() {
   }
   const getAuthError = (errorDescription: string | null, errorCode: string | null) => {
     if (errorDescription) return errorDescription
-    if (errorCode) return `Sign-in failed: ${errorCode}`
-    return 'Unable to sign in with Google. Please try again or contact the People Team.'
+    if (errorCode) return renderTemplate(t.auth.signInFailedWithCode, { code: errorCode })
+    return t.auth.signInFailedDefault
   }
   async function handleOAuthCallback() {
     if (!supabase || typeof window === 'undefined') return false
@@ -374,7 +386,7 @@ export default function Onboarding() {
 
       if (exchangeError) {
         console.error('Failed exchangeCodeForSession', exchangeError)
-        setError('Unable to establish Google session. Please try again or contact the People Team.')
+        setError(t.auth.unableToEstablishSession)
         clearCallbackFromUrl()
         return false
       }
@@ -396,7 +408,7 @@ export default function Onboarding() {
 
       if (setSessionError) {
         console.error('Failed setSession', setSessionError)
-        setError('Unable to establish Google session. Please try again or contact the People Team.')
+        setError(t.auth.unableToEstablishSession)
         clearCallbackFromUrl()
         return false
       }
@@ -421,7 +433,7 @@ export default function Onboarding() {
 
     if (sessionError) {
       console.error('getSession failed', sessionError)
-      setError('Unable to verify your account. Please contact the People Team.')
+      setError(t.auth.unableToVerifyAccount)
       setReady(true)
       return
     }
@@ -433,7 +445,7 @@ export default function Onboarding() {
 
     if (found) {
       if (callbackHandled) {
-        setError('Your Google sign-in did not return a valid session. Please try again.')
+        setError(t.auth.invalidSession)
       }
 
       clearSession()
@@ -544,7 +556,7 @@ export default function Onboarding() {
   }
   async function signInWithGoogle() {
     if (!supabase || !isSupabaseConfigured) {
-      setError('This site is not configured yet. Please contact the People Team.')
+      setError(t.auth.notConfigured)
       return
     }
 
@@ -559,7 +571,7 @@ export default function Onboarding() {
     })
 
     if (error) {
-      setError('Unable to sign in with Google. Please try again or contact the People Team.')
+      setError(t.auth.signInFailedDefault)
       setBusy(false)
     }
   }
@@ -591,7 +603,7 @@ export default function Onboarding() {
       .maybeSingle()
 
     if (error) {
-      setError('Unable to verify your account. Please contact the People Team.')
+      setError(t.auth.unableToVerifyAccount)
       setBusy(false)
       setReady(true)
       return
@@ -600,7 +612,7 @@ export default function Onboarding() {
     const status = String(data?.employee_status || '').toLowerCase()
 
     if (!data || status !== 'active') {
-      setError('Your Google account is not registered for Onboarding@99. Please contact the People Team.')
+      setError(t.auth.accountNotRegistered)
       await supabase.auth.signOut()
       setBusy(false)
       setReady(true)
@@ -812,7 +824,7 @@ export default function Onboarding() {
 
   async function submitSystemsCheck() {
     if (!canSubmitSystemsCheck()) {
-      setError('Please complete all systems check questions before continuing.')
+      setError(t.cannotProceedSystemsCheck)
       return false
     }
 
@@ -835,7 +847,7 @@ export default function Onboarding() {
     }
 
     if (!feedbackRating) {
-      setError('Please select a rating before continuing.')
+      setError(t.feedback.selectRatingError)
       return false
     }
 
@@ -933,7 +945,7 @@ export default function Onboarding() {
 
     const finishDeclarationPollError = () => {
       stopDeclarationPolling()
-      setError('We couldn’t check your submission. Please try again.')
+      setError(t.declaration.checkFailed)
       setDeclarationStatus('error')
     }
 
