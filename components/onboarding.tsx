@@ -273,14 +273,7 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
           <p className="max-w-2xl text-base leading-relaxed text-ink/70">Department: {dept.title}</p>
           {dept.found ? (
             <>
-              <p className="max-w-2xl text-base leading-relaxed text-ink/70">If the embedded page cannot be loaded, use the button below.</p>
-              <iframe
-                title="Department onboarding"
-                src={dept.url as string}
-                className="mt-4 h-64 w-full rounded-xl border border-ink/15"
-                loading="lazy"
-              />
-              <ExternalLink href={dept.url as string}>Open Site in a New Tab</ExternalLink>
+              <ExternalLink href={dept.url as string} className="mt-3 inline-flex">Open Site in a New Tab</ExternalLink>
             </>
           ) : (
             <p className="rounded-xl bg-ink/5 p-4 text-sm text-ink">
