@@ -224,7 +224,7 @@ function EndingLandingPage({ employee, onSignOut, language, onChangeLanguage }: 
   return (
     <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8">
       <header className="mb-6 flex items-center justify-between">
-        <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+        <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">Onboarding<span className="text-coral">@99</span></p>
         <LanguageToggle language={language} onChange={onChangeLanguage} />
       </header>
 
@@ -595,7 +595,7 @@ export default function Onboarding() {
     const status = String(data?.employee_status || '').toLowerCase()
 
     if (!data || status !== 'active') {
-      setError('Your Google account is not registered for AllAboard@99. Please contact the People Team.')
+      setError('Your Google account is not registered for Onboarding@99. Please contact the People Team.')
       await supabase.auth.signOut()
       setBusy(false)
       setReady(true)
@@ -1010,7 +1010,7 @@ export default function Onboarding() {
   if (!ready) return <main className="grid min-h-screen place-items-center p-6 text-ink"><p className="animate-pulse">{t.loading}</p></main>
   if (!employee) return <main className="mx-auto grid min-h-screen max-w-xl place-items-center p-6"><section className="w-full rounded-[2rem] bg-cream p-7 shadow-soft sm:p-10">
     <header className="mb-14 flex items-center justify-between">
-      <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p>
+      <p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">Onboarding<span className="text-coral">@99</span></p>
       <LanguageToggle language={language} onChange={changeLanguage} />
     </header>
 
@@ -1033,7 +1033,7 @@ export default function Onboarding() {
   if (onboardingCompletedAt) {
     return <EndingLandingPage employee={employee} language={language} onChangeLanguage={changeLanguage} onSignOut={signOutFromApp} />
   }
-  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">AllAboard!<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} total={steps.length} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedbackAndFinish} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{(current < steps.length || current === RATING_STEP_NUMBER) && (
+  return <main className="mx-auto min-h-screen max-w-4xl p-4 sm:p-8"><header className="mb-6 flex items-center justify-between"><p className="inline-flex rounded-full bg-cream px-4 py-2 text-xl font-black tracking-tight">Onboarding<span className="text-coral">@99</span></p><LanguageToggle language={language} onChange={changeLanguage} /></header><section className="min-h-[580px] rounded-[2rem] bg-cream p-6 shadow-soft sm:p-10"><div className="mb-9"><p className="font-semibold">{t.journey}</p><p className="mt-1 text-sm text-ink/60">{t.step} {current} {t.of} {steps.length}</p><div className="mt-4"><ProgressBar current={current} total={steps.length} /></div></div><div key={`${current}-${language}`} className="step-enter"><StepContent step={step} employee={employee} t={t} language={language} videos={videos} onAdvance={advance} busy={busy} error={error} setError={setError} isVideoCompleted={isVideoCompleted} declarationStatus={declarationStatus} isDeclarationSubmitted={isDeclarationSubmitted} onCheckDeclaration={checkDeclarationSubmission} onVideoEnd={() => { setCompleted(prev => prev.includes(step.number) ? prev : [...prev, step.number]) }} reflectionSaved={reflectionSaved} setReflectionSaved={setReflectionSaved} isSystemsCheckSubmitted={isSystemsCheckSubmitted} systemsCheckResponses={systemsCheckResponses} updateSystemsCheckResponse={updateSystemsCheckResponse} canSubmitSystemsCheck={canSubmitSystemsCheck()} submitSystemsCheck={submitSystemsCheck} feedbackRating={feedbackRating} feedbackSubmitted={feedbackSubmitted} setFeedbackRating={setFeedbackRating} submitFeedback={submitFeedbackAndFinish} /><nav className="mt-10 flex flex-wrap justify-between gap-3 border-t border-ink/10 pt-6">{current > 1 ? <Button variant="secondary" onClick={back}>← {t.previous}</Button> : <span />}{(current < steps.length || current === RATING_STEP_NUMBER) && (
     <div className="flex flex-col items-end gap-2">
       <Button
         onClick={advance}
@@ -1281,7 +1281,7 @@ const feedbackLabels: Record<number, string> = {
       setReflectionSaving(false)
     }
   }
-  const managerMessage = `Hi,\n\nI have a few questions from my AllAboard!@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
+  const managerMessage = `Hi,\n\nI have a few questions from my Onboarding@99 onboarding:\n\n${questions.map(q => `• ${q.question}`).join('\n') || 'No questions this time.'}\n\nThanks!`
   const systemsCheckPrompt =
     step.number >= 4 && step.number <= 7
       ? 'Have a question? Note it down below'
@@ -1372,7 +1372,7 @@ const feedbackLabels: Record<number, string> = {
     {isSystemsCheckSubmitted && <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Systems check submitted ✓</p>}
   </>
   if (step.number === RATING_STEP_NUMBER) return <>
-    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Rate your AllAboard!@99 Experience</h1>
+    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Rate your Onboarding@99 Experience</h1>
     <div className="mt-7 flex gap-3">
       {[1, 2, 3, 4, 5].map((value) => (
         <Button
@@ -1479,7 +1479,7 @@ const feedbackLabels: Record<number, string> = {
   </>
   if (step.kind === 'manager') return <><h1 className="text-4xl font-bold tracking-tight">Questions for your manager.</h1><p className="mt-4 leading-relaxed text-ink/70">{t.manager}</p><div className="mt-7 rounded-2xl bg-ink/5 p-5 whitespace-pre-wrap">{questions.length ? managerMessage : t.noQuestions}</div><div className="mt-4 flex gap-3"><Button variant="secondary" onClick={() => { navigator.clipboard.writeText(managerMessage); setCopied(true) }}>{copied ? t.copied : t.copyQuestions}</Button><ExternalLink href="https://99dotco.slack.com/team/U06JQRW0YLW">{t.openSlack}</ExternalLink></div></>
   if (step.kind === 'complete') return <><div className="grid h-16 w-16 place-items-center rounded-full bg-leaf text-3xl text-white">✓</div><h1 className="mt-6 text-5xl font-bold tracking-tight">You’re all set.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Now you are ready for your #YourWayHome journey.</p><p className="mt-8 rounded-2xl bg-leaf/10 p-4 font-semibold text-leaf">{t.allDone}</p></>
-  if (step.kind === 'thanks') return <><div className="text-6xl">✦</div><h1 className="mt-5 text-5xl font-bold tracking-tight">Thank you.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Your AllAboard!@99 journey is complete. We’re excited to have you with us.</p>{step.externalUrl && <ExternalLink href={step.externalUrl} className="mt-8">{t.checkPlatforms}</ExternalLink>}</>
+  if (step.kind === 'thanks') return <><div className="text-6xl">✦</div><h1 className="mt-5 text-5xl font-bold tracking-tight">Thank you.</h1><p className="mt-4 max-w-xl text-lg leading-relaxed text-ink/70">Your Onboarding@99 journey is complete. We’re excited to have you with us.</p>{step.externalUrl && <ExternalLink href={step.externalUrl} className="mt-8">{t.checkPlatforms}</ExternalLink>}</>
   if (step.kind === 'form') return <><h1 className="text-4xl font-bold tracking-tight">Fill out your Declaration Form.</h1><div className="mt-7 overflow-hidden rounded-3xl border border-ink/10"><iframe title="Declaration Form" className="h-[390px] w-full" src={step.externalUrl} loading="lazy" /></div>{onCheckDeclaration && !isDeclarationSubmitted && declarationStatus !== 'found' ? <Button onClick={onCheckDeclaration} disabled={declarationStatus === 'checking'} className="mt-4">{declarationStatus === 'checking' ? 'Checking your submission…' : declarationStatus === 'not_found' || declarationStatus === 'error' ? 'Try Again' : 'Check My Submissions'}</Button> : null}{declarationStatus === 'found' || isDeclarationSubmitted ? <p className="mt-3 rounded-2xl bg-leaf/10 p-4 text-leaf font-semibold">Declaration submitted ✓<br />We found your declaration form submission.</p> : null}{declarationStatus === 'not_found' ? <p className="mt-3 rounded-2xl bg-ink/5 p-4 text-ink/70">We couldn't find your submission yet. Please make sure you&apos;ve submitted the Declaration Form and try again.</p> : null}{declarationStatus === 'error' ? <p className="mt-3 rounded-2xl bg-red-100 p-4 text-sm text-red-700">We couldn’t check your submission. Please try again.</p> : null}</>
   if (step.kind === 'linkedin') return <><h1 className="text-4xl font-bold tracking-tight">Update your LinkedIn profile.</h1><p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink/70">Show the world that you're a proud 99er. Add our special Proud 99er LinkedIn badge and 99 Group LinkedIn banner to your profile and let your network know you're part of the team.</p><div className="mt-7 grid gap-4 sm:grid-cols-2"><ExternalLink href="https://drive.usercontent.google.com/download?id=1PLqiJtAULCCn5onEThpgxgJawB0hHYV_&export=download&authuser=0&confirm=t&uuid=62150135-e542-4b67-8a77-b004d2c61476&at=AFYLz4MmJN93TOmrJa0cBlxswg0t:1786611872173">Download Banner</ExternalLink><ExternalLink href="https://www.supertwibbon.com/99ersLinkedInProfile">Create LinkedIn Badge</ExternalLink></div><div className="mt-7 flex justify-center">
     <img

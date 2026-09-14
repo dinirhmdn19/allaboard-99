@@ -1,4 +1,4 @@
-# AllAboard!@99
+# Onboarding@99
 
 Warm, bilingual onboarding for new 99 Group employees. It is a Next.js 14, TypeScript, Tailwind CSS and Supabase application designed as one resumable 16-step journey.
 
